@@ -1,5 +1,5 @@
 package com.example.termproject.screen
-import android.content.Intent
+
 import com.example.termproject.R
 import android.os.Bundle
 import android.widget.Button
@@ -10,6 +10,8 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import android.content.Intent
+
 
 class Activity1 : AppCompatActivity() {
 
@@ -22,29 +24,17 @@ class Activity1 : AppCompatActivity() {
         setupDate()
         setupEmotion()
         setupCategories()
-        setupGoAnalysisButton()
-    }
-    private fun getSelectedCategory(): String {
-        val selectedButton = categoryButtons.find { it.isSelected }
-        return selectedButton?.text.toString()
-    }
 
-    private fun getEmotionScore(): Int {
-        val seekBar = findViewById<SeekBar>(R.id.emotionSeekBar)
-        return ((seekBar.progress + 1) * 100) / 7
-    }
-
-    private fun setupGoAnalysisButton() {
         val btnGoAnalysis = findViewById<Button>(R.id.btnGoAnalysis)
 
         btnGoAnalysis.setOnClickListener {
             val intent = Intent(this, AiAnalysisActivity::class.java).apply {
                 putExtra("title", "오늘의 결정")
-                putExtra("category", getSelectedCategory())
+                putExtra("category", "인간관계")
                 putExtra("selectedOption", "친구에게 먼저 연락했다")
                 putExtra("reason", "계속 어색한 상태로 두기 싫어서 먼저 연락했다")
                 putExtra("expectedResult", "관계가 조금이라도 회복됐으면 좋겠다")
-                putExtra("emotionScore", getEmotionScore())
+                putExtra("emotionScore", 68)
                 putExtra("createdTime", System.currentTimeMillis())
             }
 
