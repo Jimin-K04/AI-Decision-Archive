@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F6F4EF"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="22dp">
+
+        <!-- 상단 제목 -->
+        <TextView
+            android:id="@+id/tvPageTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🧠 AI 결정 분석"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            android:textColor="#2B2B2B"
+            android:layout_marginBottom="6dp" />
+
+        <TextView
+            android:id="@+id/tvPageDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="작성한 결정 기록을 바탕으로 오늘의 상태와 후회 가능성을 분석했어요."
+            android:textSize="14sp"
+            android:textColor="#777777"
+            android:lineSpacingExtra="3dp"
+            android:layout_marginBottom="20dp" />
+
+        <!-- 결정 요약 카드 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#FFFFFF"
+            android:padding="18dp"
+            android:layout_marginBottom="14dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="📋 오늘의 결정 요약"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#2B2B2B"
+                android:layout_marginBottom="10dp" />
+
+            <TextView
+                android:id="@+id/tvDecisionSummary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="결정 기록 요약"
+                android:textSize="15sp"
+                android:textColor="#444444"
+                android:lineSpacingExtra="5dp" />
+        </LinearLayout>
+
+        <!-- 핵심 분석 카드 1 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#FFFFFF"
+            android:padding="18dp"
+            android:layout_marginBottom="14dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="✨ 핵심 분석"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#2B2B2B"
+                android:layout_marginBottom="14dp" />
+
+            <TextView
+                android:id="@+id/tvDecisionType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="📌 결정 유형"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#333333"
+                android:background="@drawable/section2_bg_inner_card"
+                android:padding="12dp"
+                android:layout_marginBottom="10dp" />
+
+            <TextView
+                android:id="@+id/tvDecisionStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="💭 감정 vs 논리"
+                android:textSize="16sp"
+                android:textColor="#333333"
+                android:background="#F0EEE8"
+                android:padding="12dp"
+                android:layout_marginBottom="10dp" />
+
+            <TextView
+                android:id="@+id/tvRiskScore"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="⚠️ 리스크 감수 성향"
+                android:textSize="16sp"
+                android:textColor="#333333"
+                android:background="#F0EEE8"
+                android:padding="12dp"
+                android:layout_marginBottom="10dp" />
+
+            <TextView
+                android:id="@+id/tvReasonScore"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="📝 선택 근거 점수"
+                android:textSize="16sp"
+                android:textColor="#333333"
+                android:background="#F0EEE8"
+                android:padding="12dp"
+                android:layout_marginBottom="10dp" />
+
+            <TextView
+                android:id="@+id/tvRegretPrediction"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🔮 후회 가능성"
+                android:textSize="16sp"
+                android:textColor="#333333"
+                android:background="#F0EEE8"
+                android:padding="12dp" />
+        </LinearLayout>
+
+        <!-- 오늘의 상태 카드 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/section2_bg_card"
+            android:padding="18dp"
+            android:layout_marginBottom="14dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🌙 오늘의 상태 요약"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#2B2B2B"
+                android:layout_marginBottom="10dp" />
+
+            <TextView
+                android:id="@+id/tvStateSummary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="오늘의 상태 요약"
+                android:textSize="15sp"
+                android:textColor="#444444"
+                android:lineSpacingExtra="5dp" />
+        </LinearLayout>
+
+        <!-- 날씨 카드 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#FFFFFF"
+            android:padding="18dp"
+            android:layout_marginBottom="14dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="☁️ 날씨와 감정"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#2B2B2B"
+                android:layout_marginBottom="10dp" />
+
+            <TextView
+                android:id="@+id/tvWeatherRelation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="날씨와의 상관관계"
+                android:textSize="15sp"
+                android:textColor="#444444"
+                android:lineSpacingExtra="5dp" />
+        </LinearLayout>
+
+        <!-- 조언 카드 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#FFFFFF"
+            android:padding="18dp"
+            android:layout_marginBottom="18dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="💡 오늘의 조언"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#2B2B2B"
+                android:layout_marginBottom="10dp" />
+
+            <TextView
+                android:id="@+id/tvAdvice"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="버튼을 누르면 오늘의 조언이 표시됩니다."
+                android:textSize="15sp"
+                android:textColor="#444444"
+                android:lineSpacingExtra="5dp"
+                android:layout_marginBottom="12dp" />
+
+            <Button
+                android:id="@+id/btnShowAdvice"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="오늘의 조언 보기" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnShare"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="분석 결과 공유하기"
+            android:layout_marginBottom="20dp" />
+
+    </LinearLayout>
+</ScrollView>
