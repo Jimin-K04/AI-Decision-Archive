@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="28dp"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="카테고리"
+        android:textColor="#374151"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <GridLayout
+        android:id="@+id/categoryGrid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:columnCount="3">
+
+        <Button
+            android:id="@+id/categoryCareer"
+            style="@style/CategoryButtonStyle"
+            android:text="🎯 진로" />
+
+        <Button
+            android:id="@+id/categoryLove"
+            style="@style/CategoryButtonStyle"
+            android:text="💕 연애" />
+
+        <Button
+            android:id="@+id/categoryRelation"
+            style="@style/CategoryButtonStyle"
+            android:text="🤝 인간관계"
+            android:textSize="13sp" />
+
+        <Button
+            android:id="@+id/categoryConsume"
+            style="@style/CategoryButtonStyle"
+            android:text="💳 소비" />
+
+        <Button
+            android:id="@+id/categoryStudy"
+            style="@style/CategoryButtonStyle"
+            android:text="📚 학업" />
+
+        <Button
+            android:id="@+id/categoryWork"
+            style="@style/CategoryButtonStyle"
+            android:text="💼 일" />
+
+        <Button
+            android:id="@+id/categoryFood"
+            style="@style/CategoryButtonStyle"
+            android:text="🍱 식단" />
+
+        <Button
+            android:id="@+id/categoryDaily"
+            style="@style/CategoryButtonStyle"
+            android:text="☀️ 일상" />
+
+    </GridLayout>
+
+</LinearLayout>

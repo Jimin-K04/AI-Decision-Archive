@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8F8F8"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <include layout="@layout/section1_header" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:text="제목"
+            android:textColor="#374151"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/titleEdit"
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/edit_background"
+            android:hint="결정의 제목을 입력하세요"
+            android:paddingHorizontal="18dp"
+            android:textColor="#111827"
+            android:textColorHint="#94A3B8"
+            android:textSize="17sp" />
+
+        <include layout="@layout/section1_category" />
+
+        <include layout="@layout/section1_decision" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:text="선택 이유"
+            android:textColor="#374151"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/reasonEdit"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/edit_background"
+            android:gravity="top"
+            android:hint="왜 이 선택을 했나요?"
+            android:padding="18dp"
+            android:textColor="#111827"
+            android:textColorHint="#94A3B8"
+            android:textSize="17sp" />
+
+        <include layout="@layout/section1_emotion" />
+
+        <include layout="@layout/section1_image_upload" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/saveButton"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:layout_marginTop="40dp"
+            android:layout_marginBottom="30dp"
+
+            android:text="✓ 기록 저장하기"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="22sp"
+            android:textStyle="bold"
+
+            app:backgroundTint="#FAB061"
+            app:cornerRadius="18dp"
+            app:rippleColor="#FFD29A"/>
+
+    </LinearLayout>
+
+</ScrollView>
