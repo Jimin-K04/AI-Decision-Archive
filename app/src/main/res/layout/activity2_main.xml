@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:id="@+id/tvPageTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="AI 분석 결과"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="20dp" />
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="제목:"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/tvCategory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="카테고리:"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/tvSelectedOption"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="선택한 것:"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/tvReason"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="선택 이유:"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/tvEmotionScore"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="감정 점수:"
+            android:textSize="16sp"
+            android:layout_marginBottom="20dp" />
+
+        <TextView
+            android:id="@+id/tvAnalysisTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="분석 내용"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp" />
+
+        <TextView
+            android:id="@+id/tvDecisionType"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="결정 유형:"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/tvEmotionLogic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="감정/논리 비율:"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/tvRiskScore"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="리스크 점수:"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/tvRegretPossibility"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="후회 가능성:"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/tvAdvice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="AI 조언:"
+            android:textSize="16sp"
+            android:layout_marginBottom="24dp" />
+
+        <Button
+            android:id="@+id/btnShare"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="분석 결과 공유하기" />
+
+    </LinearLayout>
+</ScrollView>

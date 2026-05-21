@@ -21,6 +21,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".screen.Activity1" />
+        <activity
+            android:name=".screen.AiAnalysisActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
