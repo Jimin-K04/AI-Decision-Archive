@@ -82,6 +82,13 @@
             app:cornerRadius="18dp"
             app:rippleColor="#FFD29A"/>
 
+        <Button
+            android:id="@+id/btnGoAnalysis"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="AI 분석하기"
+            android:layout_marginTop="24dp" />
+
     </LinearLayout>
 
 </ScrollView>
