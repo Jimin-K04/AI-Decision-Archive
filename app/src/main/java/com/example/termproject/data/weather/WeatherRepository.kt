@@ -35,6 +35,17 @@ class WeatherRepository {
         val discomfortIndex =
             calculateDiscomfortIndex(temperature, humidity)
 
+        android.util.Log.d(
+            "WEATHER",
+            """
+    temperature=${currentWeather.temperature_2m}
+    rain=${currentWeather.rain}
+    precipitation=${currentWeather.precipitation}
+    cloud=${currentWeather.cloud_cover}
+    code=${currentWeather.weather_code}
+    """.trimIndent()
+        )
+
         return EnvironmentData(
             temperature = temperature,
             humidity = humidity,
@@ -42,7 +53,12 @@ class WeatherRepository {
             rain = currentWeather.rain ?: 0.0,
             cloudCover = currentWeather.cloud_cover ?: 0,
             weatherCode = currentWeather.weather_code ?: -1,
-            weatherText = weatherCodeToText(currentWeather.weather_code),
+            weatherText = weatherToText(
+                weatherCode = currentWeather.weather_code,
+                rain = currentWeather.rain ?: 0.0,
+                precipitation = currentWeather.precipitation ?: 0.0,
+                cloudCover = currentWeather.cloud_cover ?: 0
+            ),
             pm10 = currentAir.pm10 ?: 0.0,
             pm25 = currentAir.pm2_5 ?: 0.0,
             uvIndex = currentAir.uv_index ?: 0.0,
@@ -55,9 +71,15 @@ class WeatherRepository {
         temperature: Double,
         humidity: Int
     ): Double {
-        return 0.81 * temperature +
-                0.01 * humidity * (0.99 * temperature - 14.3) +
-                46.3
+        val rh = humidity / 100.0
+        return (
+                (9.0 / 5.0) * temperature
+                        - 0.55 * (1 - rh)
+                        * (
+                        (9.0 / 5.0) * temperature - 26
+                        )
+                        + 32
+                )
     }
 
     private fun discomfortIndexToText(value: Double): String {
@@ -70,10 +92,25 @@ class WeatherRepository {
         }
     }
 
-    private fun weatherCodeToText(code: Int?): String {
-        return when (code) {
+    private fun weatherToText(
+        weatherCode: Int?,
+        rain: Double,
+        precipitation: Double,
+        cloudCover: Int
+    ): String {
+        if (rain > 0.0 || precipitation > 0.0) {
+            return "비"
+        }
+        if (cloudCover >= 80) {
+            return "흐림"
+        }
+        if (cloudCover >= 50) {
+            return "구름 많음"
+        }
+        return when (weatherCode) {
             0 -> "맑음"
-            1, 2, 3 -> "대체로 맑음/흐림"
+            1, 2 -> "대체로 맑음"
+            3 -> "흐림"
             45, 48 -> "안개"
             51, 53, 55 -> "이슬비"
             61, 63, 65 -> "비"
