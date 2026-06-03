@@ -22,6 +22,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import android.widget.EditText
 
 class Activity1 : AppCompatActivity() {
     private lateinit var categoryButtons: List<Button>
@@ -56,46 +57,103 @@ class Activity1 : AppCompatActivity() {
         return seekBar.progress + 1
     }
 
+//    private fun setupGoAnalysisButton() {
+//        val btnGoAnalysis =
+//            findViewById<Button>(R.id.btnGoAnalysis)
+//        btnGoAnalysis.setOnClickListener {
+//            val intent =
+//                Intent(this, AiAnalysisActivity::class.java).apply {
+//                    putExtra("title", "오늘의 결정")
+//                    putExtra(
+//                        "category",
+//                        getSelectedCategory()
+//                    )
+//
+//                    putExtra(
+//                        "selectedOption",
+//                        "친구에게 먼저 연락했다"
+//                    )
+//
+//                    putExtra(
+//                        "reason",
+//                        "계속 어색한 상태로 두기 싫어서 먼저 연락했다"
+//                    )
+//
+//                    putExtra(
+//                        "expectedResult",
+//                        "관계가 조금이라도 회복됐으면 좋겠다"
+//                    )
+//
+//                    putExtra(
+//                        "emotionScore",
+//                        getEmotionScore()
+//                    )
+//
+//                    putExtra(
+//                        "createdTime",
+//                        System.currentTimeMillis()
+//                    )
+//                }
+//
+//            startActivity(intent)
+//        }
+//    }
     private fun setupGoAnalysisButton() {
-        val btnGoAnalysis =
-            findViewById<Button>(R.id.btnGoAnalysis)
+        val btnGoAnalysis = findViewById<Button>(R.id.btnGoAnalysis)
+
         btnGoAnalysis.setOnClickListener {
-            val intent =
-                Intent(this, AiAnalysisActivity::class.java).apply {
-                    putExtra("title", "오늘의 결정")
-                    putExtra(
-                        "category",
-                        getSelectedCategory()
-                    )
-
-                    putExtra(
-                        "selectedOption",
-                        "친구에게 먼저 연락했다"
-                    )
-
-                    putExtra(
-                        "reason",
-                        "계속 어색한 상태로 두기 싫어서 먼저 연락했다"
-                    )
-
-                    putExtra(
-                        "expectedResult",
-                        "관계가 조금이라도 회복됐으면 좋겠다"
-                    )
-
-                    putExtra(
-                        "emotionScore",
-                        getEmotionScore()
-                    )
-
-                    putExtra(
-                        "createdTime",
-                        System.currentTimeMillis()
-                    )
-                }
-
-            startActivity(intent)
+            moveToAnalysis()
         }
+    }
+    // Activity 1에서 입력한 값을 Activity2 로 넘기기
+    private fun moveToAnalysis() {
+        val title = findViewById<EditText>(R.id.titleEdit)
+            .text.toString().trim()
+
+        val choiceOptions = findViewById<EditText>(R.id.choiceEdit)
+            .text.toString().trim()
+
+        val selectedOption = findViewById<EditText>(R.id.finalChoiceEdit)
+            .text.toString().trim()
+
+        val reason = findViewById<EditText>(R.id.reasonEdit)
+            .text.toString().trim()
+
+        if (title.isBlank()) {
+            Toast.makeText(this, "제목을 입력해주세요.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (choiceOptions.isBlank()) {
+            Toast.makeText(this, "고민한 선택지를 입력해주세요.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (selectedOption.isBlank()) {
+            Toast.makeText(this, "결국 선택한 내용을 입력해주세요.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (reason.isBlank()) {
+            Toast.makeText(this, "선택 이유를 입력해주세요.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val intent = Intent(this, AiAnalysisActivity::class.java).apply {
+            putExtra("title", title)
+            putExtra("category", getSelectedCategory())
+            putExtra("choiceOptions", choiceOptions)
+            putExtra("selectedOption", selectedOption)
+            putExtra("reason", reason)
+
+            // Activity1에는 기대 결과 입력칸이 아직 없으므로 일단 빈 값으로 전달
+            putExtra("expectedResult", "")
+
+            putExtra("emotionScore", getEmotionScore())
+            putExtra("createdTime", System.currentTimeMillis())
+        }
+
+        startActivity(intent)
     }
 
     private fun setupDate() {

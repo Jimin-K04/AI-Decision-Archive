@@ -16,6 +16,7 @@ class AiAnalysisActivity : AppCompatActivity() {
     private var title: String = ""
     private var category: String = ""
     private var selectedOption: String = ""
+    private var choiceOptions: String = ""
     private var reason: String = ""
     private var expectedResult: String = ""
     private var emotionScore: Int = 0
@@ -62,6 +63,7 @@ class AiAnalysisActivity : AppCompatActivity() {
     private fun receiveIntentData() {
         title = intent.getStringExtra("title") ?: "제목 없음"
         category = intent.getStringExtra("category") ?: "일상"
+        choiceOptions = intent.getStringExtra("choiceOptions") ?: "고민한 선택지 없음"
         selectedOption = intent.getStringExtra("selectedOption") ?: "선택 내용 없음"
         reason = intent.getStringExtra("reason") ?: "선택 이유 없음"
         expectedResult = intent.getStringExtra("expectedResult") ?: "기대 결과 없음"
@@ -74,14 +76,16 @@ class AiAnalysisActivity : AppCompatActivity() {
         val emotionPercent = calculateEmotionPercent(emotionScore)
         val logicPercent = 100 - emotionPercent
         val riskScore = calculateRiskScore(decisionType, emotionPercent)
-        val reasonScore = calculateReasonScore(reason, expectedResult)
+        val reasonScore = calculateReasonScore(reason, choiceOptions)
         val regretLevel = calculateRegretPrediction(emotionPercent, riskScore, reasonScore)
         val decisionTimeText = formatTime(createdTime)
 
         tvDecisionSummary.text = """
             제목  |  $title
             카테고리  |  $decisionType
-            선택  |  $selectedOption
+            고민한 선택지  |  $choiceOptions
+            최종 선택  |  $selectedOption
+            선택 이유  |  $reason
             감정 점수  |  ${emotionPercent}점
             결정 시간  |  $decisionTimeText
         """.trimIndent()
