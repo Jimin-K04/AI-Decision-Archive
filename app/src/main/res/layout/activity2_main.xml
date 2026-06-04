@@ -84,7 +84,6 @@
                 android:layout_height="wrap_content"
                 android:text="📌 결정 유형"
                 android:textSize="16sp"
-                android:textStyle="bold"
                 android:textColor="#333333"
                 android:background="@drawable/section2_bg_inner_card"
                 android:padding="12dp"
@@ -97,7 +96,7 @@
                 android:text="💭 감정 vs 논리"
                 android:textSize="16sp"
                 android:textColor="#333333"
-                android:background="#F0EEE8"
+                android:background="@drawable/section2_bg_inner_card"
                 android:padding="12dp"
                 android:layout_marginBottom="10dp" />
 
@@ -108,7 +107,7 @@
                 android:text="⚠️ 리스크 감수 성향"
                 android:textSize="16sp"
                 android:textColor="#333333"
-                android:background="#F0EEE8"
+                android:background="@drawable/section2_bg_inner_card"
                 android:padding="12dp"
                 android:layout_marginBottom="10dp" />
 
@@ -119,7 +118,7 @@
                 android:text="📝 선택 근거 점수"
                 android:textSize="16sp"
                 android:textColor="#333333"
-                android:background="#F0EEE8"
+                android:background="@drawable/section2_bg_inner_card"
                 android:padding="12dp"
                 android:layout_marginBottom="10dp" />
 
@@ -130,7 +129,7 @@
                 android:text="🔮 후회 가능성"
                 android:textSize="16sp"
                 android:textColor="#333333"
-                android:background="#F0EEE8"
+                android:background="@drawable/section2_bg_inner_card"
                 android:padding="12dp" />
         </LinearLayout>
 
