@@ -2,4 +2,21 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="bg_activity">#FAF7F1</color>
+    <color name="card_color">#FFFFFC</color>
+    <color name="border_color">#E8D8CA</color>
+
+    <color name="text_main">#2B1712</color>
+    <color name="text_sub">#7E6A5D</color>
+
+    <color name="orange">#E05A3C</color>
+    <color name="orange_dark">#D94D31</color>
+    <color name="orange_light">#FBE1D8</color>
+
+    <color name="green">#30A878</color>
+    <color name="green_light">#DDF7EC</color>
+
+    <color name="chip_beige">#F1E6D8</color>
+    <color name="chip_review">#FFE5DF</color>
+    <color name="icon_bg">#FFE3B8</color>
 </resources>
