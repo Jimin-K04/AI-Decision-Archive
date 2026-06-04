@@ -21,6 +21,8 @@ import kotlinx.coroutines.launch
 
 class AiAnalysisActivity : AppCompatActivity() {
 
+    private val useGptApi = false
+
     private var title: String = ""
     private var category: String = ""
     private var selectedOption: String = ""
@@ -40,7 +42,8 @@ class AiAnalysisActivity : AppCompatActivity() {
     private lateinit var tvRegretPrediction: TextView
     private lateinit var tvAdvice: TextView
     private lateinit var btnShowAdvice: Button
-    private lateinit var btnShare: Button
+    private lateinit var btnNewDecision: Button
+    private lateinit var btnTimeCapsule: Button
 
     private var adviceText: String = ""
 
@@ -51,7 +54,9 @@ class AiAnalysisActivity : AppCompatActivity() {
         initViews()
         receiveIntentData()
         showAnalysisResult()
-        requestGptFullAnalysis()
+        if (useGptApi) {
+            requestGptFullAnalysis()
+        }
         setupButtons()
     }
 
@@ -66,7 +71,8 @@ class AiAnalysisActivity : AppCompatActivity() {
         tvRegretPrediction = findViewById(R.id.tvRegretPrediction)
         tvAdvice = findViewById(R.id.tvAdvice)
         btnShowAdvice = findViewById(R.id.btnShowAdvice)
-        btnShare = findViewById(R.id.btnShare)
+        btnNewDecision = findViewById(R.id.btnNewDecision)
+        btnTimeCapsule = findViewById(R.id.btnTimeCapsule)
     }
 
     private fun receiveIntentData() {
@@ -307,11 +313,30 @@ class AiAnalysisActivity : AppCompatActivity() {
 
     private fun setupButtons() {
         btnShowAdvice.setOnClickListener {
-            requestGptAdvice()
+            if (useGptApi) {
+                requestGptAdvice()
+            } else {
+                tvAdvice.text = adviceText
+                Toast.makeText(
+                    this,
+                    "개발 모드: 기본 조언을 표시합니다.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
 
-        btnShare.setOnClickListener {
-            shareAnalysisResult()
+        btnNewDecision.setOnClickListener {
+            val intent = Intent(this, Activity1::class.java)
+            startActivity(intent)
+            finish()
+        }
+
+        btnTimeCapsule.setOnClickListener {
+            Toast.makeText(
+                this,
+                "타임캡슐 기능은 아직 준비 중입니다.",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -574,32 +599,4 @@ class AiAnalysisActivity : AppCompatActivity() {
         return formatter.format(Date(timeMillis))
     }
 
-    private fun shareAnalysisResult() {
-        val shareText = """
-            [AI 결정 분석 결과]
-            
-            ${tvDecisionSummary.text}
-            
-            ${tvDecisionType.text}
-            
-            ${tvDecisionStyle.text}
-            
-            ${tvRiskScore.text}
-            
-            ${tvReasonScore.text}
-            
-            ${tvStateSummary.text}
-            
-            ${tvRegretPrediction.text}
-            
-            ${tvAdvice.text}
-        """.trimIndent()
-
-        val shareIntent = Intent(Intent.ACTION_SEND).apply {
-            type = "text/plain"
-            putExtra(Intent.EXTRA_TEXT, shareText)
-        }
-
-        startActivity(Intent.createChooser(shareIntent, "분석 결과 공유하기"))
-    }
 }

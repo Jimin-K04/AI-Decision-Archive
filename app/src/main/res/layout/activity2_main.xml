@@ -224,12 +224,35 @@
                 android:text="오늘의 조언 보기" />
         </LinearLayout>
 
-        <Button
-            android:id="@+id/btnShare"
+        <LinearLayout
+            android:id="@+id/bottomButtonLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="분석 결과 공유하기"
-            android:layout_marginBottom="20dp" />
+            android:orientation="horizontal"
+            android:layout_marginBottom="20dp">
+
+            <Button
+                android:id="@+id/btnNewDecision"
+                android:layout_width="0dp"
+                android:layout_height="54dp"
+                android:layout_weight="1"
+                android:text="새 결정"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/btnTimeCapsule"
+                android:layout_width="0dp"
+                android:layout_height="54dp"
+                android:layout_weight="1"
+                android:text="타임캡슐로"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginStart="8dp" />
+
+        </LinearLayout>
+
 
     </LinearLayout>
 </ScrollView>
