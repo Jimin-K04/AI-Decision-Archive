@@ -24,7 +24,7 @@ import java.util.Locale
 import java.util.TimeZone
 import android.widget.EditText
 
-class Activity1 : AppCompatActivity() {
+class Activity1 : BaseActivity() {
     private lateinit var categoryButtons: List<Button>
 
     private val weatherRepository = WeatherRepository()
@@ -33,7 +33,7 @@ class Activity1 : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity1_main)
+        setBaseContent(R.layout.activity1_main, NAV_RECORD)
         val recordButton =
             findViewById<Button>(R.id.saveButton)
 
@@ -265,6 +265,38 @@ class Activity1 : AppCompatActivity() {
     }
 
     private fun requestEnvironmentAndSave() {
+        val title = findViewById<EditText>(R.id.titleEdit)
+            .text.toString().trim()
+
+        val choiceOptions = findViewById<EditText>(R.id.choiceEdit)
+            .text.toString().trim()
+
+        val selectedOption = findViewById<EditText>(R.id.finalChoiceEdit)
+            .text.toString().trim()
+
+        val reason = findViewById<EditText>(R.id.reasonEdit)
+            .text.toString().trim()
+
+        if (title.isBlank()) {
+            Toast.makeText(this, "제목을 입력해주세요.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (choiceOptions.isBlank()) {
+            Toast.makeText(this, "고민한 선택지를 입력해주세요.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (selectedOption.isBlank()) {
+            Toast.makeText(this, "결국 선택한 내용을 입력해주세요.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (reason.isBlank()) {
+            Toast.makeText(this, "선택 이유를 입력해주세요.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         if (
             ActivityCompat.checkSelfPermission(
                 this,
@@ -273,9 +305,7 @@ class Activity1 : AppCompatActivity() {
         ) {
             ActivityCompat.requestPermissions(
                 this,
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ),
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                 LOCATION_PERMISSION_REQUEST_CODE
             )
             return
@@ -283,11 +313,12 @@ class Activity1 : AppCompatActivity() {
 
         val fusedLocationClient =
             LocationServices.getFusedLocationProviderClient(this)
+
         fusedLocationClient.getCurrentLocation(
             Priority.PRIORITY_HIGH_ACCURACY,
             null
         ).addOnSuccessListener { location ->
-            android.util.Log.d( "LOCATION", "lat=${location.latitude}, lon=${location.longitude}" )
+
             if (location == null) {
                 Toast.makeText(
                     this,
@@ -297,47 +328,84 @@ class Activity1 : AppCompatActivity() {
                 return@addOnSuccessListener
             }
 
+            android.util.Log.d(
+                "LOCATION",
+                "lat=${location.latitude}, lon=${location.longitude}"
+            )
+
             lifecycleScope.launch {
-                try {
+                android.util.Log.d("SAVE_FLOW", "날씨 정보 요청 시작")
+
+                val environmentFields = try {
                     val environmentData =
                         weatherRepository.getEnvironmentData(
                             latitude = location.latitude,
                             longitude = location.longitude
                         )
 
-                    val record = hashMapOf(
+                    android.util.Log.d("SAVE_FLOW", "날씨 정보 가져오기 성공")
+
+                    hashMapOf<String, Any>(
                         "weather" to environmentData.weatherText,
                         "discomfort" to environmentData.discomfortText,
                         "temperature" to environmentData.temperature,
-                        "humidity" to environmentData.humidity,
-                        "category" to getSelectedCategory(),
-                        "emotionScore" to getEmotionScore(),
-                        "createdAt" to Timestamp.now()                    )
+                        "humidity" to environmentData.humidity
+                    )
 
-                    db.collection("records")
-                        .add(record)
-                        .addOnSuccessListener {
-                            Toast.makeText(
-                                this@Activity1,
-                                "Firestore 저장 성공",
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
-                        .addOnFailureListener { e ->
-
-                            Toast.makeText(
-                                this@Activity1,
-                                "저장 실패 : ${e.message}",
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
                 } catch (e: Exception) {
+                    android.util.Log.e("WEATHER_ERROR", "날씨 API 실패", e)
+
                     Toast.makeText(
                         this@Activity1,
-                        "날씨 정보를 가져오지 못했습니다.",
-                        Toast.LENGTH_SHORT
+                        "날씨 정보 실패: ${e.message}",
+                        Toast.LENGTH_LONG
                     ).show()
+
+                    hashMapOf<String, Any>(
+                        "weather" to "알 수 없음",
+                        "discomfort" to "알 수 없음",
+                        "temperature" to 0.0,
+                        "humidity" to 0
+                    )
                 }
+
+                val record = hashMapOf<String, Any>(
+                    "title" to title,
+                    "choiceOptions" to choiceOptions,
+                    "selectedOption" to selectedOption,
+                    "reason" to reason,
+
+                    "category" to getSelectedCategory(),
+                    "emotionScore" to getEmotionScore(),
+                    "createdAt" to Timestamp.now(),
+
+                    "reviewCompleted" to false
+                )
+
+                record.putAll(environmentFields)
+
+                android.util.Log.d("FIRESTORE_SAVE", "Firestore 저장 시작: $record")
+
+                db.collection("records")
+                    .add(record)
+                    .addOnSuccessListener { documentRef ->
+                        android.util.Log.d("FIRESTORE_SAVE", "저장 성공 id=${documentRef.id}")
+
+                        Toast.makeText(
+                            this@Activity1,
+                            "Firestore 저장 성공",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                    .addOnFailureListener { e ->
+                        android.util.Log.e("FIRESTORE_SAVE", "저장 실패", e)
+
+                        Toast.makeText(
+                            this@Activity1,
+                            "저장 실패 : ${e.message}",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
             }
         }
     }

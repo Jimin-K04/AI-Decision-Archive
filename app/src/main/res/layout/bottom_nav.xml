@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/bottomNav"
+    android:layout_width="match_parent"
+    android:layout_height="72dp"
+    android:background="#FFFEFC"
+    android:orientation="vertical">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#E8D8CA" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <!-- 기록 -->
+        <LinearLayout
+            android:id="@+id/navRecord"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/navRecordIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="✎"
+                android:textColor="#7E6A5D"
+                android:textSize="22sp" />
+
+            <TextView
+                android:id="@+id/navRecordText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="기록"
+                android:textColor="#7E6A5D"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <!-- 타임캡슐 -->
+        <LinearLayout
+            android:id="@+id/navTimeCapsule"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/navTimeCapsuleIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="◷"
+                android:textColor="#7E6A5D"
+                android:textSize="22sp" />
+
+            <TextView
+                android:id="@+id/navTimeCapsuleText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="타임캡슐"
+                android:textColor="#7E6A5D"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <!-- 리포트 -->
+        <LinearLayout
+            android:id="@+id/navReport"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/navReportIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="▥"
+                android:textColor="#7E6A5D"
+                android:textSize="22sp" />
+
+            <TextView
+                android:id="@+id/navReportText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="리포트"
+                android:textColor="#7E6A5D"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+    </LinearLayout>
+</LinearLayout>
