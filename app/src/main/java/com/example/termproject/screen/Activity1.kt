@@ -23,6 +23,7 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 import android.widget.EditText
+import com.example.termproject.data.weather.EnvironmentData
 
 class Activity1 : BaseActivity() {
     private lateinit var categoryButtons: List<Button>
@@ -102,59 +103,59 @@ class Activity1 : BaseActivity() {
         val btnGoAnalysis = findViewById<Button>(R.id.btnGoAnalysis)
 
         btnGoAnalysis.setOnClickListener {
-            moveToAnalysis()
+            requestEnvironmentAndMoveToAnalysis()
         }
     }
-    // Activity 1에서 입력한 값을 Activity2 로 넘기기
-    private fun moveToAnalysis() {
-        val title = findViewById<EditText>(R.id.titleEdit)
-            .text.toString().trim()
-
-        val choiceOptions = findViewById<EditText>(R.id.choiceEdit)
-            .text.toString().trim()
-
-        val selectedOption = findViewById<EditText>(R.id.finalChoiceEdit)
-            .text.toString().trim()
-
-        val reason = findViewById<EditText>(R.id.reasonEdit)
-            .text.toString().trim()
-
-        if (title.isBlank()) {
-            Toast.makeText(this, "제목을 입력해주세요.", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        if (choiceOptions.isBlank()) {
-            Toast.makeText(this, "고민한 선택지를 입력해주세요.", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        if (selectedOption.isBlank()) {
-            Toast.makeText(this, "결국 선택한 내용을 입력해주세요.", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        if (reason.isBlank()) {
-            Toast.makeText(this, "선택 이유를 입력해주세요.", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val intent = Intent(this, AiAnalysisActivity::class.java).apply {
-            putExtra("title", title)
-            putExtra("category", getSelectedCategory())
-            putExtra("choiceOptions", choiceOptions)
-            putExtra("selectedOption", selectedOption)
-            putExtra("reason", reason)
-
-            // Activity1에는 기대 결과 입력칸이 아직 없으므로 일단 빈 값으로 전달
-            putExtra("expectedResult", "")
-
-            putExtra("emotionScore", getEmotionScore())
-            putExtra("createdTime", System.currentTimeMillis())
-        }
-
-        startActivity(intent)
-    }
+//    // Activity 1에서 입력한 값을 Activity2 로 넘기기
+//    private fun moveToAnalysis() {
+//        val title = findViewById<EditText>(R.id.titleEdit)
+//            .text.toString().trim()
+//
+//        val choiceOptions = findViewById<EditText>(R.id.choiceEdit)
+//            .text.toString().trim()
+//
+//        val selectedOption = findViewById<EditText>(R.id.finalChoiceEdit)
+//            .text.toString().trim()
+//
+//        val reason = findViewById<EditText>(R.id.reasonEdit)
+//            .text.toString().trim()
+//
+//        if (title.isBlank()) {
+//            Toast.makeText(this, "제목을 입력해주세요.", Toast.LENGTH_SHORT).show()
+//            return
+//        }
+//
+//        if (choiceOptions.isBlank()) {
+//            Toast.makeText(this, "고민한 선택지를 입력해주세요.", Toast.LENGTH_SHORT).show()
+//            return
+//        }
+//
+//        if (selectedOption.isBlank()) {
+//            Toast.makeText(this, "결국 선택한 내용을 입력해주세요.", Toast.LENGTH_SHORT).show()
+//            return
+//        }
+//
+//        if (reason.isBlank()) {
+//            Toast.makeText(this, "선택 이유를 입력해주세요.", Toast.LENGTH_SHORT).show()
+//            return
+//        }
+//
+//        val intent = Intent(this, AiAnalysisActivity::class.java).apply {
+//            putExtra("title", title)
+//            putExtra("category", getSelectedCategory())
+//            putExtra("choiceOptions", choiceOptions)
+//            putExtra("selectedOption", selectedOption)
+//            putExtra("reason", reason)
+//
+//            // Activity1에는 기대 결과 입력칸이 아직 없으므로 일단 빈 값으로 전달
+//            putExtra("expectedResult", "")
+//
+//            putExtra("emotionScore", getEmotionScore())
+//            putExtra("createdTime", System.currentTimeMillis())
+//        }
+//
+//        startActivity(intent)
+//    }
 
     private fun setupDate() {
         val dateText =
@@ -262,6 +263,164 @@ class Activity1 : BaseActivity() {
             button.isSelected = false
         }
         selectedButton.isSelected = true
+    }
+
+    private fun requestEnvironmentAndMoveToAnalysis() {
+        val title = findViewById<EditText>(R.id.titleEdit).text.toString().trim()
+        val choiceOptions = findViewById<EditText>(R.id.choiceEdit).text.toString().trim()
+        val selectedOption = findViewById<EditText>(R.id.finalChoiceEdit).text.toString().trim()
+        val reason = findViewById<EditText>(R.id.reasonEdit).text.toString().trim()
+
+        if (title.isBlank()) {
+            Toast.makeText(this, "제목을 입력해주세요.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (choiceOptions.isBlank()) {
+            Toast.makeText(this, "고민한 선택지를 입력해주세요.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (selectedOption.isBlank()) {
+            Toast.makeText(this, "결국 선택한 내용을 입력해주세요.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (reason.isBlank()) {
+            Toast.makeText(this, "선택 이유를 입력해주세요.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (
+            ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                LOCATION_PERMISSION_REQUEST_CODE
+            )
+            return
+        }
+
+        Toast.makeText(this, "날씨 정보를 불러오는 중입니다.", Toast.LENGTH_SHORT).show()
+
+        val fusedLocationClient =
+            LocationServices.getFusedLocationProviderClient(this)
+
+        fusedLocationClient.getCurrentLocation(
+            Priority.PRIORITY_HIGH_ACCURACY,
+            null
+        ).addOnSuccessListener { location ->
+
+            if (location == null) {
+                startAnalysisActivityWithoutWeather(
+                    title,
+                    choiceOptions,
+                    selectedOption,
+                    reason
+                )
+                return@addOnSuccessListener
+            }
+
+            lifecycleScope.launch {
+                try {
+                    val env = weatherRepository.getEnvironmentData(
+                        latitude = location.latitude,
+                        longitude = location.longitude
+                    )
+
+                    startAnalysisActivityWithWeather(
+                        title,
+                        choiceOptions,
+                        selectedOption,
+                        reason,
+                        env
+                    )
+
+                } catch (e: Exception) {
+                    Toast.makeText(
+                        this@Activity1,
+                        "날씨 정보 실패, 기본 분석으로 이동합니다.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    startAnalysisActivityWithoutWeather(
+                        title,
+                        choiceOptions,
+                        selectedOption,
+                        reason
+                    )
+                }
+            }
+        }
+    }
+
+    private fun startAnalysisActivityWithWeather(
+        title: String,
+        choiceOptions: String,
+        selectedOption: String,
+        reason: String,
+        env: EnvironmentData
+    ) {
+        val intent = Intent(this, AiAnalysisActivity::class.java).apply {
+            putExtra("title", title)
+            putExtra("category", getSelectedCategory())
+            putExtra("choiceOptions", choiceOptions)
+            putExtra("selectedOption", selectedOption)
+            putExtra("reason", reason)
+            putExtra("expectedResult", "")
+            putExtra("emotionScore", getEmotionScore())
+            putExtra("createdTime", System.currentTimeMillis())
+
+            putExtra("weatherText", env.weatherText)
+            putExtra("temperature", env.temperature)
+            putExtra("humidity", env.humidity)
+            putExtra("precipitation", env.precipitation)
+            putExtra("rain", env.rain)
+            putExtra("cloudCover", env.cloudCover)
+            putExtra("pm10", env.pm10)
+            putExtra("pm25", env.pm25)
+            putExtra("uvIndex", env.uvIndex)
+            putExtra("discomfortIndex", env.discomfortIndex)
+            putExtra("discomfortText", env.discomfortText)
+        }
+
+        startActivity(intent)
+    }
+
+    private fun startAnalysisActivityWithoutWeather(
+        title: String,
+        choiceOptions: String,
+        selectedOption: String,
+        reason: String
+    ) {
+        val intent = Intent(this, AiAnalysisActivity::class.java).apply {
+            putExtra("title", title)
+            putExtra("category", getSelectedCategory())
+            putExtra("choiceOptions", choiceOptions)
+            putExtra("selectedOption", selectedOption)
+            putExtra("reason", reason)
+            putExtra("expectedResult", "")
+            putExtra("emotionScore", getEmotionScore())
+            putExtra("createdTime", System.currentTimeMillis())
+
+            putExtra("weatherText", "알 수 없음")
+            putExtra("temperature", 0.0)
+            putExtra("humidity", 0)
+            putExtra("precipitation", 0.0)
+            putExtra("rain", 0.0)
+            putExtra("cloudCover", 0)
+            putExtra("pm10", 0.0)
+            putExtra("pm25", 0.0)
+            putExtra("uvIndex", 0.0)
+            putExtra("discomfortIndex", 0.0)
+            putExtra("discomfortText", "알 수 없음")
+        }
+
+        startActivity(intent)
     }
 
     private fun requestEnvironmentAndSave() {
