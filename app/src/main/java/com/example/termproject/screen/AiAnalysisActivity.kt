@@ -25,7 +25,7 @@ import java.util.TimeZone
 
 class AiAnalysisActivity : AppCompatActivity() {
 
-    private val useGptApi = true
+    private val useGptApi = false
 
     private var title: String = ""
     private var category: String = ""
@@ -391,7 +391,8 @@ class AiAnalysisActivity : AppCompatActivity() {
         }
 
         btnTimeCapsule.setOnClickListener {
-            Toast.makeText(this, "타임캡슐 기능은 아직 준비 중입니다.", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, Activity3::class.java)
+            startActivity(intent)
         }
     }
 
