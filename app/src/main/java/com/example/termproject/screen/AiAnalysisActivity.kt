@@ -1,27 +1,31 @@
 package com.example.termproject.screen
 
 import android.content.Intent
+import android.graphics.Typeface
 import android.os.Bundle
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.RelativeSizeSpan
+import android.text.style.StyleSpan
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import com.example.termproject.BuildConfig
 import com.example.termproject.R
+import com.example.termproject.network.OpenAiChatRequest
+import com.example.termproject.network.OpenAiMessage
+import com.example.termproject.network.RetrofitClient
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
-import android.widget.Toast
-import androidx.lifecycle.lifecycleScope
-import com.example.termproject.BuildConfig
-import com.example.termproject.network.OpenAiChatRequest
-import com.example.termproject.network.OpenAiMessage
-import com.example.termproject.network.RetrofitClient
-import kotlinx.coroutines.launch
-
 class AiAnalysisActivity : AppCompatActivity() {
 
-    private val useGptApi = false
+    private val useGptApi = true
 
     private var title: String = ""
     private var category: String = ""
@@ -31,6 +35,18 @@ class AiAnalysisActivity : AppCompatActivity() {
     private var expectedResult: String = ""
     private var emotionScore: Int = 0
     private var createdTime: Long = 0L
+
+    private var weatherText: String = "알 수 없음"
+    private var temperature: Double = 0.0
+    private var humidity: Int = 0
+    private var precipitation: Double = 0.0
+    private var rain: Double = 0.0
+    private var cloudCover: Int = 0
+    private var pm10: Double = 0.0
+    private var pm25: Double = 0.0
+    private var uvIndex: Double = 0.0
+    private var discomfortIndex: Double = 0.0
+    private var discomfortText: String = "알 수 없음"
 
     private lateinit var tvDecisionSummary: TextView
     private lateinit var tvDecisionType: TextView
@@ -53,10 +69,14 @@ class AiAnalysisActivity : AppCompatActivity() {
 
         initViews()
         receiveIntentData()
-        showAnalysisResult()
+        showLoadingFallback()
+
         if (useGptApi) {
             requestGptFullAnalysis()
+        } else {
+            showBasicFallbackAnalysis()
         }
+
         setupButtons()
     }
 
@@ -84,56 +104,42 @@ class AiAnalysisActivity : AppCompatActivity() {
         expectedResult = intent.getStringExtra("expectedResult") ?: "기대 결과 없음"
         emotionScore = intent.getIntExtra("emotionScore", 0)
         createdTime = intent.getLongExtra("createdTime", System.currentTimeMillis())
+
+        weatherText = intent.getStringExtra("weatherText") ?: "알 수 없음"
+        temperature = intent.getDoubleExtra("temperature", 0.0)
+        humidity = intent.getIntExtra("humidity", 0)
+        precipitation = intent.getDoubleExtra("precipitation", 0.0)
+        rain = intent.getDoubleExtra("rain", 0.0)
+        cloudCover = intent.getIntExtra("cloudCover", 0)
+        pm10 = intent.getDoubleExtra("pm10", 0.0)
+        pm25 = intent.getDoubleExtra("pm25", 0.0)
+        uvIndex = intent.getDoubleExtra("uvIndex", 0.0)
+        discomfortIndex = intent.getDoubleExtra("discomfortIndex", 0.0)
+        discomfortText = intent.getStringExtra("discomfortText") ?: "알 수 없음"
     }
 
-    private fun showAnalysisResult() {
+    private fun showLoadingFallback() {
         val decisionType = normalizeCategory(category)
-        val emotionPercent = calculateEmotionPercent(emotionScore)
-        val logicPercent = 100 - emotionPercent
-        val riskScore = calculateRiskScore(decisionType, emotionPercent)
-        val reasonScore = calculateReasonScore(reason, choiceOptions)
-        val regretLevel = calculateRegretPrediction(emotionPercent, riskScore, reasonScore)
         val decisionTimeText = formatTime(createdTime)
+        val emotionPercent = calculateEmotionPercent(emotionScore)
 
         tvDecisionSummary.text = """
-            제목  |  $title
-            카테고리  |  $decisionType
-            고민한 선택지  |  $choiceOptions
-            최종 선택  |  $selectedOption
-            선택 이유  |  $reason
-            감정 점수  |  ${emotionPercent}점
-            결정 시간  |  $decisionTimeText
-        """.trimIndent()
-        tvDecisionType.text = "📌 결정 유형\n$decisionType"
-
-        tvDecisionStyle.text = """
-            💭 결정 성향
-            감정 기반 $emotionPercent%  ·  논리 기반 $logicPercent%
+제목 | $title
+카테고리 | $decisionType
+고민한 선택지 | $choiceOptions
+최종 선택 | $selectedOption
+선택 이유 | $reason
+감정 점수 | ${emotionPercent}점/100점
+결정 시간 | $decisionTimeText
         """.trimIndent()
 
-        tvRiskScore.text = """
-            ⚠️ 리스크 감수 성향
-            ${riskScore}점  ·  ${getRiskMessage(riskScore)}
-        """.trimIndent()
-
-        tvReasonScore.text = """
-            📝 선택 근거 점수
-            ${reasonScore}점  ·  ${getReasonMessage(reasonScore)}
-        """.trimIndent()
-
-        tvRegretPrediction.text = """
-            🔮 후회 가능성
-            $regretLevel
-        """.trimIndent()
-
-        tvStateSummary.text = createStateSummary(decisionType, emotionPercent, riskScore)
-
-        tvWeatherRelation.text = """
-            현재는 날씨 API 연결 전이에요.
-            이후 날씨 API를 연결하면 결정 당시 날씨와 감정 점수를 함께 비교할 수 있어요.
-        """.trimIndent()
-
-        adviceText = createAdvice(decisionType, emotionPercent, riskScore, reasonScore)
+        tvDecisionType.text = "📌 결정 유형\nAI가 분석 중이에요..."
+        tvDecisionStyle.text = "💭 결정 성향\nAI가 감정과 논리 비율을 계산 중이에요..."
+        tvRiskScore.text = "⚠️ 리스크 감수 성향\nAI가 리스크 점수를 계산 중이에요..."
+        tvReasonScore.text = "📝 선택 근거 점수\nAI가 선택 근거 점수를 계산 중이에요..."
+        tvRegretPrediction.text = "🔮 후회 가능성\nAI가 후회 가능성을 분석 중이에요..."
+        tvStateSummary.text = "AI가 오늘의 상태를 요약하고 있어요."
+        tvWeatherRelation.text = "AI가 날씨와 감정의 관계를 분석하고 있어요."
         tvAdvice.text = "오늘의 조언은 버튼을 누르면 표시됩니다."
     }
 
@@ -141,37 +147,27 @@ class AiAnalysisActivity : AppCompatActivity() {
         val apiKey = BuildConfig.OPENAI_API_KEY
 
         if (apiKey.isBlank()) {
-            Toast.makeText(
-                this,
-                "API 키가 없어 기본 분석을 표시합니다.",
-                Toast.LENGTH_SHORT
-            ).show()
+            Toast.makeText(this, "API 키가 없어 기본 분석을 표시합니다.", Toast.LENGTH_SHORT).show()
+            showBasicFallbackAnalysis()
             return
         }
-
-        tvDecisionType.text = "📌 결정 유형\nAI가 분석 중이에요..."
-        tvDecisionStyle.text = "💭 결정 성향\nAI가 감정과 논리 비율을 분석 중이에요..."
-        tvRiskScore.text = "⚠️ 리스크 감수 성향\nAI가 리스크 점수를 분석 중이에요..."
-        tvReasonScore.text = "📝 선택 근거 점수\nAI가 선택 이유를 분석 중이에요..."
-        tvRegretPrediction.text = "🔮 후회 가능성\nAI가 후회 가능성을 분석 중이에요..."
-        tvStateSummary.text = "AI가 오늘의 상태를 요약하고 있어요."
-        tvWeatherRelation.text = "AI가 날씨와 감정의 관계를 분석하고 있어요."
 
         lifecycleScope.launch {
             try {
                 val request = OpenAiChatRequest(
                     model = "gpt-4o-mini",
-                    max_tokens = 650,
-                    temperature = 0.75,
+                    max_tokens = 600,
+                    temperature = 0.65,
                     messages = listOf(
                         OpenAiMessage(
                             role = "system",
-                            content =  """
-                                너는 사용자의 결정 기록을 자연스럽게 해석해주는 한국어 AI야.
-                                분석은 딱딱한 보고서처럼 쓰지 말고, 앱 사용자가 읽기 편한 말투로 작성해.
-                                "때문입니다", "근거는", "결과적으로" 같은 표현을 반복하지 마.
-                                사용자를 판단하거나 단정하지 말고, "~로 보여요", "~일 수 있어요", "~에 가까워 보여요"처럼 부드럽게 말해.
-                                각 항목은 짧지만 자연스럽게 이어지는 문장으로 작성해.
+                            content = """
+                        너는 사용자의 결정 기록을 분석하는 한국어 AI야.
+                        반드시 사용자가 준 기록, 감정 점수, 선택지, 선택 이유, 날씨 데이터를 함께 고려해서 판단해.
+                        카테고리 하나만으로 점수나 비율을 정하지 마.
+                        점수와 비율은 네가 직접 계산하되, 판단 기준을 짧게 설명해.
+                        사용자를 단정하거나 평가하지 말고 "~로 보여요", "~했을 수 있어요"처럼 부드럽게 말해.
+                        마크다운 기호 *, #, - 는 사용하지 마.
                             """.trimIndent()
                         ),
                         OpenAiMessage(
@@ -193,61 +189,91 @@ class AiAnalysisActivity : AppCompatActivity() {
                     ?.trim()
 
                 if (result.isNullOrBlank()) {
-                    Toast.makeText(
-                        this@AiAnalysisActivity,
-                        "AI 분석 응답이 비어 있어 기본 분석을 표시합니다.",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    showAnalysisResult()
+                    Toast.makeText(this@AiAnalysisActivity, "AI 응답이 비어 있어 기본 분석을 표시합니다.", Toast.LENGTH_SHORT).show()
+                    showBasicFallbackAnalysis()
                 } else {
                     applyGptFullAnalysis(result)
                 }
 
             } catch (e: Exception) {
                 e.printStackTrace()
-                Toast.makeText(
-                    this@AiAnalysisActivity,
-                    "AI 분석 생성 실패: 기본 분석을 표시합니다.",
-                    Toast.LENGTH_SHORT
-                ).show()
-                showAnalysisResult()
+                Toast.makeText(this@AiAnalysisActivity, "AI 분석 실패: 기본 분석을 표시합니다.", Toast.LENGTH_SHORT).show()
+                showBasicFallbackAnalysis()
             }
         }
     }
 
     private fun applyGptFullAnalysis(result: String) {
-        val decisionTypeText = extractSection(result, "DECISION_TYPE", "분석 결과를 불러오지 못했습니다.")
-        val decisionStyleText = extractSection(result, "DECISION_STYLE", "감정/논리 분석 결과를 불러오지 못했습니다.")
-        val riskScoreText = extractSection(result, "RISK_SCORE", "리스크 분석 결과를 불러오지 못했습니다.")
-        val reasonScoreText = extractSection(result, "REASON_SCORE", "선택 근거 분석 결과를 불러오지 못했습니다.")
-        val regretPredictionText = extractSection(result, "REGRET_PREDICTION", "후회 가능성 분석 결과를 불러오지 못했습니다.")
-        val stateSummaryText = extractSection(result, "STATE_SUMMARY", "상태 요약을 불러오지 못했습니다.")
-        val weatherRelationText = extractSection(result, "WEATHER_RELATION", "날씨와 감정 분석 결과를 불러오지 못했습니다.")
+        val decisionTypeText = extractSection(result, "DECISION_TYPE", "일상\n입력된 내용을 기준으로 일상적인 결정에 가까워 보여요.")
+        val decisionStyleText = extractSection(result, "DECISION_STYLE", "감정 기반 50% · 논리 기반 50%\n감정과 현실적인 판단이 함께 들어간 결정으로 보여요.")
+        val riskScoreText = extractSection(result, "RISK_SCORE", "50점/100점 · 균형형\n결과가 완전히 확실하지는 않지만 무리한 선택으로 보이진 않아요.")
+        val reasonScoreText = extractSection(result, "REASON_SCORE", "50점/100점\n선택 이유는 있지만 조금 더 구체화하면 더 좋은 기록이 될 수 있어요.")
+        val regretPredictionText = extractSection(result, "REGRET_PREDICTION", "보통\n선택 이후의 행동에 따라 만족도가 달라질 수 있어요.")
+        val stateSummaryText = extractSection(result, "STATE_SUMMARY", "오늘은 감정과 현실적인 이유를 함께 고려한 상태로 보여요.")
+        val weatherRelationText = extractSection(result, "WEATHER_RELATION", "날씨 정보와 감정 점수를 함께 보면 결정 당시의 컨디션을 더 입체적으로 볼 수 있어요.")
 
-        tvDecisionType.text = "📌 결정 유형\n\n$decisionTypeText"
-        tvDecisionStyle.text = "💭 결정 성향\n\n$decisionStyleText"
-        tvRiskScore.text = "⚠️ 리스크 감수 성향\n\n$riskScoreText"
-        tvReasonScore.text = "📝 선택 근거 점수\n\n$reasonScoreText"
-        tvRegretPrediction.text = "🔮 후회 가능성\n\n$regretPredictionText"
+        setAnalysisFromGpt(tvDecisionType, "📌 결정 유형", decisionTypeText)
+        setAnalysisFromGpt(tvDecisionStyle, "💭 결정 성향", decisionStyleText)
+        setAnalysisFromGpt(tvRiskScore, "⚠️ 리스크 감수 성향", riskScoreText)
+        setAnalysisFromGpt(tvReasonScore, "📝 선택 근거 점수", reasonScoreText)
+        setAnalysisFromGpt(tvRegretPrediction, "🔮 후회 가능성", regretPredictionText)
 
         tvStateSummary.text = stateSummaryText
         tvWeatherRelation.text = weatherRelationText
+
+        adviceText = createBasicAdvice()
     }
 
-    private fun extractSection(
-        text: String,
-        key: String,
-        fallback: String
-    ): String {
-        val regex = Regex(
-            "\\[$key\\]\\s*([\\s\\S]*?)(?=\\n\\[[A-Z_]+\\]|$)"
-        )
+    private fun setAnalysisFromGpt(
+        textView: TextView,
+        title: String,
+        gptText: String
+    ) {
+        val lines = gptText
+            .lines()
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
 
-        return regex.find(text)
-            ?.groupValues
-            ?.getOrNull(1)
-            ?.trim()
-            ?: fallback
+        val mainText = lines.firstOrNull() ?: "분석 결과 없음"
+        val description = lines.drop(1).joinToString("\n")
+
+        val fullText = if (description.isBlank()) {
+            "$title\n$mainText"
+        } else {
+            "$title\n$mainText\n$description"
+        }
+
+        val spannable = SpannableString(fullText)
+
+        val titleStart = fullText.indexOf(title)
+        val titleEnd = titleStart + title.length
+        if (titleStart >= 0) {
+            spannable.setSpan(
+                StyleSpan(Typeface.BOLD),
+                titleStart,
+                titleEnd,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
+
+        val mainStart = fullText.indexOf(mainText)
+        val mainEnd = mainStart + mainText.length
+        if (mainStart >= 0) {
+            spannable.setSpan(
+                StyleSpan(Typeface.BOLD),
+                mainStart,
+                mainEnd,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            spannable.setSpan(
+                RelativeSizeSpan(1.03f),
+                mainStart,
+                mainEnd,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
+
+        textView.text = spannable
     }
 
     private fun createFullAnalysisPrompt(): String {
@@ -256,58 +282,95 @@ class AiAnalysisActivity : AppCompatActivity() {
         val decisionTimeText = formatTime(createdTime)
 
         return """
-            다음은 사용자가 방금 작성한 결정 기록입니다.
-    
-            [입력 데이터]
-            제목: $title
-            카테고리: $decisionType
-            고민한 선택지: $choiceOptions
-            최종 선택: $selectedOption
-            선택 이유: $reason
-            감정 점수: $emotionPercent / 100
-            결정 시간: $decisionTimeText
-    
-            아래 섹션 태그는 파싱을 위해 반드시 그대로 유지해주세요.
-            섹션 태그 이름은 바꾸지 말고, 각 태그 아래 내용만 작성해주세요.
-            마크다운 기호 *, #, - 는 사용하지 마세요.
-    
-            전체 작성 스타일:
-            1. 한국어로 작성
-            2. 너무 보고서처럼 딱딱하게 쓰지 않기
-            3. "때문입니다"를 반복하지 않기
-            4. "결과는 ~, 근거는 ~"처럼 기계적인 구조로 쓰지 않기
-            5. 사용자가 적은 선택 이유와 최종 선택을 자연스럽게 반영하기
-            6. 심리 진단처럼 단정하지 말고 "~로 보여요", "~일 수 있어요", "~에 가까워요"처럼 표현하기
-            7. 각 섹션은 1~2문장 정도로 짧고 읽기 쉽게 작성하기
-    
-            [DECISION_TYPE]
-            진로/연애/관계/소비/학업/일상/일 중 가장 가까운 결정 유형을 자연스럽게 설명해주세요.
-            예: "이 결정은 학업과 관련된 선택에 가까워 보여요. 수업을 계속 들을지 말지 고민한 점에서, 당장의 부담과 미래의 후회를 함께 고려한 결정으로 보입니다."
-    
-            [DECISION_STYLE]
-            감정 기반과 논리 기반 비율을 합쳐서 100%가 되도록 제시해주세요.
-            단순히 숫자만 말하지 말고, 사용자의 선택 이유가 감정 쪽에 가까운지 현실적인 판단 쪽에 가까운지 자연스럽게 설명해주세요.
-            예: "감정 기반 60%, 논리 기반 40% 정도로 볼 수 있어요. '나중에 더 후회할 것 같아서'라는 표현에는 불안감도 있지만, 미래의 결과를 생각한 판단도 함께 들어 있습니다."
-    
-            [RISK_SCORE]
-            리스크 감수 성향을 0~100점으로 제시하고, 안정형/균형형/도전형 중 하나로 자연스럽게 설명해주세요.
-            예: "리스크 감수 성향은 58점 정도로, 균형형에 가까워 보여요. 완전히 안전한 선택만 한 것은 아니지만, 무작정 도전하기보다는 후회 가능성을 줄이려는 쪽에 무게가 있습니다."
-    
-            [REASON_SCORE]
-            선택 근거 점수를 0~100점으로 제시하고, 사용자의 선택 이유가 얼마나 구체적인지 부드럽게 평가해주세요.
-            예: "선택 근거 점수는 70점 정도로 볼 수 있어요. 이유는 분명하지만, 앞으로 어떻게 버틸지까지 적혀 있다면 더 선명한 결정 기록이 될 수 있습니다."
-    
-            [REGRET_PREDICTION]
-            후회 가능성을 낮음/보통/높음 중 하나로 말하고, 너무 단정하지 않게 설명해주세요.
-            예: "후회 가능성은 보통 정도로 보여요. 선택 자체보다, 이후에 구체적인 계획 없이 버티기만 하면 만족도가 낮아질 수 있습니다."
-    
-            [STATE_SUMMARY]
-            오늘의 상태를 2문장 정도로 자연스럽게 요약해주세요.
-            안정성을 중요시한 상태인지, 도전적인 상태인지, 감정에 조금 흔들린 상태인지 사용자의 기록에 맞게 설명해주세요.
-    
-            [WEATHER_RELATION]
-            아직 실제 날씨 데이터가 Activity2에 직접 연결되어 있지 않으므로 날씨를 단정하지 마세요.
-            대신 "날씨 데이터가 연결되면 감정 점수와 함께 비교할 수 있다"는 방향으로 자연스럽게 작성해주세요.
+        다음은 사용자가 방금 작성한 결정 기록입니다.
+        
+        [입력 데이터]
+        제목: $title
+        카테고리: $decisionType
+        고민한 선택지: $choiceOptions
+        최종 선택: $selectedOption
+        선택 이유: $reason
+        사용자가 직접 입력한 감정 점수: $emotionPercent / 100
+        결정 시간: $decisionTimeText
+        
+        [날씨 데이터]
+        날씨: $weatherText
+        기온: ${temperature}℃
+        습도: ${humidity}%
+        강수량: $precipitation
+        비: $rain
+        구름량: $cloudCover%
+        체감 상태: $discomfortText
+        PM10: $pm10
+        PM2.5: $pm25
+        자외선 지수: $uvIndex
+        
+        [중요한 판단 기준]
+        1. 결정 성향
+        감정 기반 비율과 논리 기반 비율을 합쳐서 반드시 100%로 계산해주세요.
+        감정 기반은 사용자의 감정 점수, 선택 이유의 감정 표현, 충동성, 불안, 관계 회복 욕구, 후회 회피 같은 정서적 동기를 반영해주세요.
+        논리 기반은 선택지 비교, 현실적 이유, 장단점 고려, 미래 결과 고려, 구체적 근거, 선택 이후 계획을 반영해주세요.
+        카테고리만으로 판단하지 마세요.
+        
+        2. 리스크 감수 성향
+        0~100점으로 판단해주세요.
+        점수가 높을수록 결과가 불확실해도 선택을 밀고 간 결정입니다.
+        판단 기준은 결과의 불확실성, 되돌리기 어려움, 선택 이후 부담, 감정에 밀려 결정한 정도, 대안 검토 여부, 선택 실패 시 손실 가능성입니다.
+        카테고리만으로 점수를 정하지 마세요.
+        0~39점은 안정형, 40~69점은 균형형, 70~100점은 도전형으로 표시해주세요.
+        점수 뒤에 "/100점"은 붙이지 마세요.
+        
+        3. 선택 근거 점수
+        0~100점으로 판단해주세요.
+        점수가 높을수록 사용자가 나중에 덜 후회할 가능성이 있는 근거 있는 선택입니다.
+        판단 기준은 선택 이유의 구체성, 고민한 선택지 비교, 예상 결과 고려, 감정과 현실의 균형, 선택 이후 행동 계획, 후회 가능성을 줄이는 근거입니다.
+        단순히 글자 수만으로 판단하지 마세요.
+        
+        4. 후회 가능성
+        낮음/보통/높음으로 판단해주세요.
+        감정 비율이 높고 선택 근거가 약하면 높게 판단해주세요.
+        선택 근거가 구체적이고 리스크가 관리 가능하면 낮게 판단해주세요.
+        리스크가 높아도 사용자가 이유와 계획을 충분히 세웠다면 무조건 높음으로 보지 마세요.
+        
+        5. 결정 유형은 사용자가 선택한 카테고리를 그대로 사용하고, GPT가 임의로 바꾸지 마세요.
+        
+        [출력 규칙]
+        아래 섹션 태그는 파싱을 위해 반드시 그대로 유지해주세요.
+        섹션 태그 이름은 바꾸지 마세요.
+        각 태그 아래 내용만 작성해주세요.
+        마크다운 기호 *, #, - 는 사용하지 마세요.
+        각 핵심 분석 섹션은 첫 줄에 핵심값, 그 아래에 이유 1~2문장만 작성해주세요.
+        
+        [DECISION_TYPE]
+        첫 줄에는 사용자가 선택한 카테고리 "$decisionType" 를 그대로 작성해주세요.
+        카테고리를 새로 분류하거나 바꾸지 마세요.
+        둘째 줄에는 이 카테고리 안에서 어떤 고민으로 보이는지 한 문장만 짧게 작성해주세요.
+        
+        [DECISION_STYLE]
+        첫 줄에는 반드시 "감정 기반 n% · 논리 기반 n%" 형식으로 작성해주세요.
+        둘째 줄부터는 왜 그 비율인지 1~2문장만 짧게 작성해주세요.
+        
+        [RISK_SCORE]
+        첫 줄에는 반드시 "n점 · 안정형/균형형/도전형" 형식으로 작성해주세요.
+        둘째 줄부터는 왜 그 점수인지 1문장만 작성해주세요.
+        
+        [REASON_SCORE]
+        첫 줄에는 반드시 "n점" 형식으로 작성해주세요.
+        둘째 줄부터는 왜 그 점수인지 1~2문장만 짧게 작성해주세요.
+        
+        [REGRET_PREDICTION]
+        첫 줄에는 반드시 "낮음/보통/높음" 중 하나만 작성해주세요.
+        둘째 줄부터는 왜 그렇게 판단했는지 1~2문장만 작성해주세요.
+        
+        [STATE_SUMMARY]
+        점수 이름을 다시 나열하지 말고, 사용자의 실제 상황과 선택 이유를 반영해서 오늘의 상태를 2~3문장으로 자연스럽게 요약해주세요.
+        날씨가 컨디션에 영향을 줬을 수 있다면 부드럽게 연결해주세요.
+        
+        [WEATHER_RELATION]
+        오늘 날씨를 기온, 습도, 미세먼지, 자외선, 체감 상태를 포함해서 2~3문장으로 설명해주세요.
+        그 뒤에 날씨가 감정이나 판단 분위기에 어떤 영향을 줬을 수 있는지 1~2문장으로 연결해주세요.
+        단, 날씨 때문에 결정했다고 단정하지 말고 "~했을 수 있어요"처럼 작성해주세요.
+        
         """.trimIndent()
     }
 
@@ -316,12 +379,8 @@ class AiAnalysisActivity : AppCompatActivity() {
             if (useGptApi) {
                 requestGptAdvice()
             } else {
-                tvAdvice.text = adviceText
-                Toast.makeText(
-                    this,
-                    "개발 모드: 기본 조언을 표시합니다.",
-                    Toast.LENGTH_SHORT
-                ).show()
+                tvAdvice.text = createBasicAdvice()
+                Toast.makeText(this, "기본 조언을 표시합니다.", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -332,11 +391,7 @@ class AiAnalysisActivity : AppCompatActivity() {
         }
 
         btnTimeCapsule.setOnClickListener {
-            Toast.makeText(
-                this,
-                "타임캡슐 기능은 아직 준비 중입니다.",
-                Toast.LENGTH_SHORT
-            ).show()
+            Toast.makeText(this, "타임캡슐 기능은 아직 준비 중입니다.", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -344,12 +399,8 @@ class AiAnalysisActivity : AppCompatActivity() {
         val apiKey = BuildConfig.OPENAI_API_KEY
 
         if (apiKey.isBlank()) {
-            tvAdvice.text = adviceText
-            Toast.makeText(
-                this,
-                "API 키가 없어 기본 조언을 표시합니다.",
-                Toast.LENGTH_SHORT
-            ).show()
+            tvAdvice.text = createBasicAdvice()
+            Toast.makeText(this, "API 키가 없어 기본 조언을 표시합니다.", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -359,24 +410,22 @@ class AiAnalysisActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             try {
-                val prompt = createAdvicePrompt()
-
                 val request = OpenAiChatRequest(
                     model = "gpt-4o-mini",
+                    max_tokens = 500,
+                    temperature = 0.75,
                     messages = listOf(
                         OpenAiMessage(
                             role = "system",
                             content = """
-                                너는 사용자의 결정 기록을 바탕으로 짧고 현실적인 조언을 해주는 한국어 AI야.
-                                말투는 딱딱한 상담문이 아니라, 앱에서 보여주는 부드러운 회고 문장처럼 작성해.
-                                "해야 합니다", "필요합니다", "중요합니다" 같은 표현을 반복하지 말고,
-                                "~해보면 좋아요", "~를 확인해볼 수 있어요", "~에 가까워 보여요"처럼 자연스럽게 말해.
-                                사용자를 판단하거나 비난하지 말고, 사용자가 적은 선택 이유를 꼭 반영해.
+                너는 사용자의 결정 기록을 바탕으로 따뜻하고 현실적인 조언을 해주는 한국어 AI야.
+                사용자를 판단하거나 혼내지 말고, 사용자가 적은 선택 이유를 꼭 반영해.
+                너무 추상적인 위로만 하지 말고 오늘 또는 내일 할 수 있는 행동을 구체적으로 제안해.
                             """.trimIndent()
                         ),
                         OpenAiMessage(
                             role = "user",
-                            content = prompt
+                            content = createAdvicePrompt()
                         )
                     )
                 )
@@ -392,34 +441,16 @@ class AiAnalysisActivity : AppCompatActivity() {
                     ?.content
                     ?.trim()
 
-                if (gptAdvice.isNullOrBlank()) {
-                    tvAdvice.text = adviceText
-                    Toast.makeText(
-                        this@AiAnalysisActivity,
-                        "응답이 비어 있어 기본 조언을 표시합니다.",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                tvAdvice.text = if (gptAdvice.isNullOrBlank()) {
+                    createBasicAdvice()
                 } else {
-                    tvAdvice.text = gptAdvice
-                    adviceText = gptAdvice
+                    gptAdvice
                 }
 
             } catch (e: Exception) {
                 e.printStackTrace()
-
-                tvAdvice.text = """
-                    기본 조언:
-                    $adviceText
-                    
-                    오류 내용:
-                    ${e.message}
-                """.trimIndent()
-
-                Toast.makeText(
-                    this@AiAnalysisActivity,
-                    "AI 조언 생성 실패: ${e.message}",
-                    Toast.LENGTH_LONG
-                ).show()
+                tvAdvice.text = createBasicAdvice()
+                Toast.makeText(this@AiAnalysisActivity, "AI 조언 생성 실패: 기본 조언을 표시합니다.", Toast.LENGTH_LONG).show()
             } finally {
                 btnShowAdvice.isEnabled = true
                 btnShowAdvice.text = "오늘의 조언 다시 보기"
@@ -430,48 +461,134 @@ class AiAnalysisActivity : AppCompatActivity() {
     private fun createAdvicePrompt(): String {
         val decisionType = normalizeCategory(category)
         val emotionPercent = calculateEmotionPercent(emotionScore)
-        val riskScore = calculateRiskScore(decisionType, emotionPercent)
-        val reasonScore = calculateReasonScore(reason, choiceOptions)
 
         return """
-        사용자의 결정 기록을 분석해서 개인화된 조언을 작성해줘.
+사용자의 결정 기록을 바탕으로 개인화된 조언을 작성해주세요.
 
-        [결정 기록]
-        제목: $title
-        카테고리: $decisionType
-        고민한 선택지: $choiceOptions
-        최종 선택: $selectedOption
-        선택 이유: $reason
-        감정 점수: $emotionPercent / 100
-        리스크 감수 성향 점수: $riskScore / 100
-        선택 근거 점수: $reasonScore / 100
+[결정 기록]
+제목: $title
+카테고리: $decisionType
+고민한 선택지: $choiceOptions
+최종 선택: $selectedOption
+선택 이유: $reason
+사용자가 입력한 감정 점수: $emotionPercent / 100
 
-        [작성 조건]
-        1. 한국어로 작성
-        2. 너무 추상적인 위로 금지
-        3. 반드시 사용자가 실제로 적은 선택 이유를 자연스럽게 반영
-        4. 위의 핵심 분석 화면과 비슷한 부드러운 말투 사용
-        5. "때문입니다", "필요합니다", "중요합니다" 같은 딱딱한 표현 반복 금지
-        6. "~해보면 좋아요", "~를 확인해볼 수 있어요", "~일 수 있어요"처럼 자연스럽게 작성
-        7. 아래 형식을 그대로 사용
-        8. 결정 해석과 주의할 점은 각각 1~3 문장정도, 그리고 지금해볼 행동과 타임캡슐 질문은 1~2문장 정도로 짧게 작성
-        9. 의학적 진단, 심리 상담처럼 단정하는 표현 금지
+[날씨 데이터]
+날씨: $weatherText
+기온: ${temperature}℃
+습도: ${humidity}%
+체감 상태: $discomfortText
+PM10: $pm10
+PM2.5: $pm25
+자외선 지수: $uvIndex
 
-        [출력 형식]
-        🔍 결정 해석:
-        사용자가 왜 이 선택을 했는지 구체적으로 해석해줘.
+[작성 조건]
+1. 한국어로 작성
+2. 따뜻하고 다정한 말투 사용
+3. 사용자의 선택을 평가하거나 혼내지 않기
+4. 사용자가 적은 선택 이유를 반드시 반영하기
+5. 너무 추상적인 위로 금지
+6. 오늘 바로 할 수 있는 행동을 구체적으로 제안하기
+7. "~해보면 좋아요", "~도 괜찮아요", "~를 한번 확인해보세요" 같은 부드러운 표현 사용
+8. 각 항목은 2~3문장 정도로 작성
+9. 의학적 진단, 심리 상담처럼 단정하는 표현 금지
+10. 사용자가 이 결정을 나중에 덜 후회하도록 도와주는 방향으로 작성
 
-        ⚖️ 주의할 점:
-        이 결정에서 나중에 후회가 생길 수 있는 포인트를 알려줘.
+[출력 형식]
+🔍 결정 해석:
+사용자가 왜 이 선택을 했는지 구체적으로 해석해주세요.
 
-        ✅ 지금 해볼 행동:
-        오늘 또는 내일 바로 할 수 있는 현실적인 행동 1가지를 제안해줘.
+⚖️ 주의할 점:
+이 결정에서 나중에 후회가 생길 수 있는 포인트를 알려주세요.
 
-        ⏳ 타임캡슐 질문:
-        나중에 이 결정을 돌아볼 때 답하면 좋은 질문 1개를 만들어줘.
-    """.trimIndent()
+✅ 지금 해볼 행동:
+오늘 또는 내일 바로 할 수 있는 현실적인 행동 1가지를 제안해주세요.
 
+⏳ 타임캡슐 질문:
+나중에 이 결정을 돌아볼 때 답하면 좋은 질문 1개를 만들어주세요.
+        """.trimIndent()
     }
+
+    private fun showBasicFallbackAnalysis() {
+        val decisionType = normalizeCategory(category)
+        val emotionPercent = calculateEmotionPercent(emotionScore)
+        val logicPercent = 100 - emotionPercent
+
+        setAnalysisFromGpt(
+            tvDecisionType,
+            "📌 결정 유형",
+            "$decisionType\n입력한 카테고리와 선택 내용을 기준으로 $decisionType 결정에 가까워 보여요."
+        )
+
+        setAnalysisFromGpt(
+            tvDecisionStyle,
+            "💭 결정 성향",
+            "감정 기반 $emotionPercent% · 논리 기반 $logicPercent%\n현재 기본 분석에서는 사용자가 입력한 감정 점수를 기준으로 임시 계산했어요."
+        )
+
+        setAnalysisFromGpt(
+            tvRiskScore,
+            "⚠️ 리스크 감수 성향",
+            "50점 · 균형형\nAI 분석을 사용할 수 없어 기본값으로 표시했어요."
+        )
+
+        setAnalysisFromGpt(
+            tvReasonScore,
+            "📝 선택 근거 점수",
+            "50점\nAI 분석을 사용할 수 없어 기본값으로 표시했어요."
+        )
+
+        setAnalysisFromGpt(
+            tvRegretPrediction,
+            "🔮 후회 가능성",
+            "보통\nAI 분석을 사용할 수 없어 기본값으로 표시했어요."
+        )
+
+        tvStateSummary.text = """
+오늘은 감정과 현실적인 이유를 함께 고려해 선택하려 한 상태로 보여요.
+선택 이유를 조금 더 구체적으로 남기면 나중에 이 결정을 돌아볼 때 더 도움이 될 수 있어요.
+        """.trimIndent()
+
+        tvWeatherRelation.text = """
+결정 당시 날씨는 $weatherText 이에요.
+기온은 ${temperature}℃, 습도는 ${humidity}%였고, 체감 상태는 $discomfortText 에 가까웠어요.
+
+PM10은 $pm10, PM2.5는 $pm25, 자외선 지수는 $uvIndex 였어요.
+이런 날씨와 컨디션은 감정 점수와 함께 보면 결정 당시의 분위기를 이해하는 데 도움이 될 수 있어요.
+        """.trimIndent()
+
+        adviceText = createBasicAdvice()
+    }
+
+    private fun createBasicAdvice(): String {
+        return """
+🔍 결정 해석:
+지금의 선택은 단순히 맞고 틀린 결정이라기보다, 당시의 마음과 상황이 함께 반영된 선택으로 보여요.
+
+⚖️ 주의할 점:
+나중에 후회가 생긴다면 선택 자체보다, 선택 후에 아무 행동도 하지 않았을 때 더 크게 느껴질 수 있어요.
+
+✅ 지금 해볼 행동:
+오늘 안에 이 선택을 잘 이어가기 위해 할 수 있는 작은 행동 하나를 정해보면 좋아요.
+
+⏳ 타임캡슐 질문:
+나중에 돌아봤을 때, 이 선택은 내 마음을 더 편하게 해줬나요?
+        """.trimIndent()
+    }
+
+    private fun extractSection(
+        text: String,
+        key: String,
+        fallback: String
+    ): String {
+        val regex = Regex("\\[$key\\]\\s*([\\s\\S]*?)(?=\\n\\[[A-Z_]+\\]|$)")
+        return regex.find(text)
+            ?.groupValues
+            ?.getOrNull(1)
+            ?.trim()
+            ?: fallback
+    }
+
     private fun normalizeCategory(category: String): String {
         return when {
             category.contains("진로") -> "진로"
@@ -491,112 +608,9 @@ class AiAnalysisActivity : AppCompatActivity() {
         }
     }
 
-    private fun calculateRiskScore(category: String, emotionPercent: Int): Int {
-        val categoryBaseScore = when (category) {
-            "연애" -> 68
-            "관계" -> 62
-            "소비" -> 70
-            "진로" -> 58
-            "학업" -> 45
-            "일" -> 55
-            else -> 48
-        }
-
-        return ((categoryBaseScore + emotionPercent) / 2).coerceIn(0, 100)
-    }
-
-    private fun calculateReasonScore(reason: String, expectedResult: String): Int {
-        var score = 35
-
-        if (reason.length >= 10) score += 15
-        if (reason.length >= 25) score += 20
-        if (reason.length >= 50) score += 10
-        if (expectedResult.isNotBlank() && expectedResult != "기대 결과 없음") score += 20
-
-        return score.coerceIn(0, 100)
-    }
-
-    private fun calculateRegretPrediction(
-        emotionPercent: Int,
-        riskScore: Int,
-        reasonScore: Int
-    ): String {
-        return when {
-            emotionPercent >= 75 && riskScore >= 65 && reasonScore < 60 ->
-                "높음 - 감정 영향이 크고 선택 근거가 부족해 보입니다."
-
-            emotionPercent >= 60 || riskScore >= 60 ->
-                "보통 - 감정과 리스크가 어느 정도 포함된 결정입니다."
-
-            else ->
-                "낮음 - 비교적 안정적이고 근거가 있는 결정으로 보입니다."
-        }
-    }
-
-    private fun getRiskMessage(score: Int): String {
-        return when {
-            score >= 70 -> "도전적인 성향이 강한 결정입니다."
-            score >= 50 -> "보통 수준의 리스크를 감수한 결정입니다."
-            else -> "안정성을 중요하게 생각한 결정입니다."
-        }
-    }
-
-    private fun getReasonMessage(score: Int): String {
-        return when {
-            score >= 75 -> "선택 이유와 기대 결과가 비교적 구체적입니다."
-            score >= 55 -> "선택 이유는 있으나 조금 더 구체화할 수 있습니다."
-            else -> "감정에 비해 선택 근거가 부족할 수 있습니다."
-        }
-    }
-
-    private fun createStateSummary(
-        decisionType: String,
-        emotionPercent: Int,
-        riskScore: Int
-    ): String {
-        return when {
-            emotionPercent >= 75 && decisionType == "관계" ->
-                "당신은 인간관계에서 감정의 영향을 크게 받은 상태로 보입니다. 관계를 회복하거나 정리하고 싶은 마음이 결정에 반영되었을 가능성이 있습니다."
-
-            emotionPercent >= 75 && decisionType == "연애" ->
-                "당신은 연애 관련 상황에서 감정적으로 크게 흔들린 상태로 보입니다. 순간적인 서운함이나 기대감이 선택에 영향을 주었을 수 있습니다."
-
-            riskScore >= 70 ->
-                "당신은 안정성보다는 변화나 도전을 선택하는 경향이 있었습니다. 결과가 불확실하더라도 시도해보려는 마음이 강했던 상태로 보입니다."
-
-            riskScore <= 45 ->
-                "당신은 안정성을 중요시하는 경향이 있었습니다. 큰 변화보다는 손해를 줄이고 상황을 유지하려는 마음이 반영된 결정으로 보입니다."
-
-            else ->
-                "당신은 감정과 현실적인 판단을 함께 고려한 상태로 보입니다. 다만 시간이 지난 뒤 실제 결과를 타임캡슐에 기록하면 더 정확한 패턴 분석이 가능합니다."
-        }
-    }
-
-    private fun createAdvice(
-        decisionType: String,
-        emotionPercent: Int,
-        riskScore: Int,
-        reasonScore: Int
-    ): String {
-        return when {
-            emotionPercent >= 75 ->
-                "지금의 결정이 틀렸다고 단정하기보다, 감정이 조금 가라앉은 뒤 같은 선택을 다시 봐도 괜찮은지 확인해보세요. 특히 $decisionType 관련 결정은 당시 감정 상태가 만족도에 큰 영향을 줄 수 있습니다."
-
-            reasonScore < 55 ->
-                "선택 이유가 아직 충분히 구체적이지 않아 보여요. 다음에는 '왜 이 선택을 했는지', '무엇을 피하고 싶었는지', '어떤 결과를 기대했는지'를 함께 적어보면 후회 패턴을 더 정확히 분석할 수 있습니다."
-
-            riskScore >= 70 ->
-                "이번 결정은 도전적인 성향이 강합니다. 좋은 선택이 될 수도 있지만, 나중에 결과를 회고할 때 실제 만족도와 예상 결과가 얼마나 일치했는지 꼭 기록해보세요."
-
-            else ->
-                "이번 결정은 비교적 균형 잡힌 선택으로 보입니다. 시간이 지난 뒤 타임캡슐에서 만족도와 후회 여부를 기록하면, 나의 결정 스타일을 더 정확히 알 수 있습니다."
-        }
-    }
-
     private fun formatTime(timeMillis: Long): String {
         val formatter = SimpleDateFormat("yyyy.MM.dd HH:mm", Locale.KOREA)
         formatter.timeZone = TimeZone.getTimeZone("Asia/Seoul")
         return formatter.format(Date(timeMillis))
     }
-
 }
