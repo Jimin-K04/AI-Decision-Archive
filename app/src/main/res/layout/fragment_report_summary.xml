@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FAF7F1">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/report_bg_main_card"
+            android:elevation="4dp"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <TextView
+                android:id="@+id/tvMonthTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="6월 결정 리포트"
+                android:textColor="#FFF7EF"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/tvDecisionStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="분석 준비중"
+                android:textColor="#FFFFFF"
+                android:textSize="30sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvHeroSummary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:lineSpacingExtra="5dp"
+                android:text="이번 달 결정 리포트를 분석 중입니다."
+                android:textColor="#FFF7EF"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/report_bg_card"
+            android:orientation="vertical"
+            android:padding="22dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="결정 건강도"
+                android:textColor="#5B4B42"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/tvHealthScore"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="0점"
+                android:textColor="#E65B3B"
+                android:textSize="38sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvHealthDesc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="만족도, 후회율, 회고 완료율을 기준으로 계산했어요."
+                android:textColor="#8D7F73"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:columnCount="2">
+
+            <TextView
+                android:id="@+id/tvCountBox"
+                style="@style/ReportGridCard"
+                android:text="결정 수\n\n0개" />
+
+            <TextView
+                android:id="@+id/tvSatisfactionBox"
+                style="@style/ReportGridCard"
+                android:text="평균 만족도\n\n0.0점" />
+
+            <TextView
+                android:id="@+id/tvRegretBox"
+                style="@style/ReportGridCard"
+                android:text="평균 후회율\n\n0%" />
+
+            <TextView
+                android:id="@+id/tvMostCategoryBox"
+                style="@style/ReportGridCard"
+                android:text="최다 카테고리\n\n없음" />
+
+        </GridLayout>
+
+    </LinearLayout>
+</ScrollView>

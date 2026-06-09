@@ -30,6 +30,8 @@
             android:name=".screen.AiAnalysisActivity"
             android:exported="false" />
         <activity android:name=".screen.Activity3" />
+        <activity android:name=".screen.Activity4" />
+        <activity android:name=".screen.ReAnalysisActivity" />
     </application>
 
 </manifest>

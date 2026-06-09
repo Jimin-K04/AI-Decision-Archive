@@ -7,10 +7,10 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import com.example.termproject.R
+import androidx.appcompat.app.AppCompatActivity
 
-open class BaseActivity : ComponentActivity() {
+open class BaseActivity : AppCompatActivity() {
 
         companion object {
         const val NAV_RECORD = "record"
@@ -47,7 +47,10 @@ open class BaseActivity : ComponentActivity() {
         }
 
         navReport.setOnClickListener {
-        Toast.makeText(this, "리포트는 아직 준비 중입니다.", Toast.LENGTH_SHORT).show()
+                 if (selectedNav != NAV_REPORT) {
+                        startActivity(Intent(this, Activity4::class.java))
+                        finish()
+                 }
         }
 
         updateNavColor(selectedNav)
