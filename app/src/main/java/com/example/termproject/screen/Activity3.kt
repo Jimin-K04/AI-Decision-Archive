@@ -16,6 +16,7 @@ import com.google.firebase.firestore.Query
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import android.content.Intent
 
 class Activity3 : BaseActivity() {
 
@@ -40,11 +41,10 @@ class Activity3 : BaseActivity() {
                 saveReview(item, input)
             },
             onAiAnalyze = { item ->
-                Toast.makeText(
-                    this,
-                    "${item.category} AI 재분석",
-                    Toast.LENGTH_SHORT
-                ).show()
+                val intent = Intent(this, ReAnalysisActivity::class.java).apply {
+                    putExtra("recordId", item.id)
+                }
+                startActivity(intent)
             }
         )
 

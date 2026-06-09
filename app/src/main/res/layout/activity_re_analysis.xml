@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FAF7F1"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="20dp"
+        android:paddingTop="28dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="36dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="AI 재분석"
+            android:textColor="#2B1712"
+            android:textSize="32sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="과거의 선택을 현재의 회고와 패턴으로 다시 살펴봐요."
+            android:textColor="#7E6A5D"
+            android:textSize="16sp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="22dp"
+            android:background="#E8D8CA" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:background="@drawable/activity2_bg_hero"
+            android:elevation="5dp"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="현재 시점으로 다시 보기"
+                android:textColor="#FFFFFF"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvStateSummary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:lineSpacingExtra="5dp"
+                android:text="AI가 과거의 선택과 현재의 회고를 다시 연결해보고 있어요."
+                android:textColor="#FFF6EF"
+                android:textSize="15sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvChipCategory"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/activity2_bg_chip"
+                    android:paddingStart="13dp"
+                    android:paddingTop="6dp"
+                    android:paddingEnd="13dp"
+                    android:paddingBottom="6dp"
+                    android:text="카테고리"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvChipStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/activity2_bg_chip"
+                    android:paddingStart="13dp"
+                    android:paddingTop="6dp"
+                    android:paddingEnd="13dp"
+                    android:paddingBottom="6dp"
+                    android:text="스타일"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvChipReview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/activity2_bg_chip"
+                    android:paddingStart="13dp"
+                    android:paddingTop="6dp"
+                    android:paddingEnd="13dp"
+                    android:paddingBottom="6dp"
+                    android:text="회고"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvDecisionSummary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:background="@drawable/activity2_bg_card"
+            android:elevation="2dp"
+            android:lineSpacingExtra="5dp"
+            android:padding="22dp"
+            android:text="그때의 결정"
+            android:textColor="#2B1712"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/tvReviewSummary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/activity2_bg_card"
+            android:elevation="2dp"
+            android:lineSpacingExtra="5dp"
+            android:padding="22dp"
+            android:text="타임캡슐 회고"
+            android:textColor="#2B1712"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/tvPatternSummary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/activity2_bg_card"
+            android:elevation="2dp"
+            android:lineSpacingExtra="5dp"
+            android:padding="22dp"
+            android:text="나의 월간 패턴"
+            android:textColor="#2B1712"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/tvReAnalysisResult"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:background="@drawable/activity2_bg_soft_card"
+            android:elevation="2dp"
+            android:lineSpacingExtra="6dp"
+            android:padding="22dp"
+            android:text="AI 재분석 결과"
+            android:textColor="#2B1712"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/btnRetry"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="24dp"
+            android:backgroundTint="#E65B3B"
+            android:text="AI 재분석 다시 하기"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btnBack"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="10dp"
+            android:backgroundTint="#F1E6DC"
+            android:text="타임캡슐로 돌아가기"
+            android:textColor="#2B1712"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+</ScrollView>

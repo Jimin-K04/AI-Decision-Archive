@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FAF7F1">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/report_bg_style_card"
+            android:elevation="4dp"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <TextView
+                android:id="@+id/tvStyleBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📊"
+                android:textSize="44sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:text="이번 달 나의 결정 타입"
+                android:textColor="#FFF7EF"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvStyleTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="분석 준비중"
+                android:textColor="#FFFFFF"
+                android:textSize="34sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvStyleSubtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="기록을 바탕으로 결정 스타일을 분석하고 있어요."
+                android:textColor="#FFF7EF"
+                android:textSize="15sp" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvStyleSummary"
+            style="@style/ReportTextCard"
+            android:layout_marginTop="18dp"
+            android:text="스타일 분석" />
+
+        <TextView
+            android:id="@+id/tvRecommend"
+            style="@style/ReportTextCard"
+            android:text="맞춤 추천" />
+
+        <TextView
+            android:id="@+id/tvTopSatisfied"
+            style="@style/ReportTextCard"
+            android:text="이번 달 만족한 결정 TOP3" />
+
+        <TextView
+            android:id="@+id/tvTopRegretted"
+            style="@style/ReportTextCard"
+            android:text="이번 달 후회한 결정 TOP3" />
+
+    </LinearLayout>
+</ScrollView>

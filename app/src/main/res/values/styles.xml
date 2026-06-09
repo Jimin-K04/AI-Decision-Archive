@@ -23,4 +23,37 @@
         <item name="android:textSize">26sp</item>
     </style>
 
+    <style name="ReportGridCard">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">120dp</item>
+        <item name="android:layout_columnWeight">1</item>
+        <item name="android:layout_margin">6dp</item>
+        <item name="android:background">@drawable/report_bg_card</item>
+        <item name="android:padding">18dp</item>
+        <item name="android:textColor">#24150F</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="ReportSectionTitle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_marginBottom">12dp</item>
+        <item name="android:textColor">#24150F</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="ReportTextCard">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">14dp</item>
+        <item name="android:background">@drawable/report_bg_card</item>
+        <item name="android:lineSpacingExtra">6dp</item>
+        <item name="android:padding">20dp</item>
+        <item name="android:textColor">#24150F</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
 </resources>

@@ -22,6 +22,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import android.widget.ProgressBar
 
 class AiAnalysisActivity : AppCompatActivity() {
 
@@ -57,9 +58,25 @@ class AiAnalysisActivity : AppCompatActivity() {
     private lateinit var tvWeatherRelation: TextView
     private lateinit var tvRegretPrediction: TextView
     private lateinit var tvAdvice: TextView
+    private lateinit var tvChipCategory: TextView
+    private lateinit var tvChipStyle: TextView
+    private lateinit var tvChipWeather: TextView
+
+    private lateinit var tvEmotionValue: TextView
+    private lateinit var tvLogicValue: TextView
+    private lateinit var tvRiskValue: TextView
+    private lateinit var tvReasonValue: TextView
+
+    private lateinit var progressEmotion: ProgressBar
+    private lateinit var progressLogic: ProgressBar
+    private lateinit var progressRisk: ProgressBar
+    private lateinit var progressReason: ProgressBar
+
     private lateinit var btnShowAdvice: Button
     private lateinit var btnNewDecision: Button
     private lateinit var btnTimeCapsule: Button
+
+
 
     private var adviceText: String = ""
 
@@ -93,6 +110,19 @@ class AiAnalysisActivity : AppCompatActivity() {
         btnShowAdvice = findViewById(R.id.btnShowAdvice)
         btnNewDecision = findViewById(R.id.btnNewDecision)
         btnTimeCapsule = findViewById(R.id.btnTimeCapsule)
+        tvChipCategory = findViewById(R.id.tvChipCategory)
+        tvChipStyle = findViewById(R.id.tvChipStyle)
+        tvChipWeather = findViewById(R.id.tvChipWeather)
+
+        tvEmotionValue = findViewById(R.id.tvEmotionValue)
+        tvLogicValue = findViewById(R.id.tvLogicValue)
+        tvRiskValue = findViewById(R.id.tvRiskValue)
+        tvReasonValue = findViewById(R.id.tvReasonValue)
+
+        progressEmotion = findViewById(R.id.progressEmotion)
+        progressLogic = findViewById(R.id.progressLogic)
+        progressRisk = findViewById(R.id.progressRisk)
+        progressReason = findViewById(R.id.progressReason)
     }
 
     private fun receiveIntentData() {
@@ -133,9 +163,9 @@ class AiAnalysisActivity : AppCompatActivity() {
 결정 시간 | $decisionTimeText
         """.trimIndent()
 
-        tvDecisionType.text = "📌 결정 유형\nAI가 분석 중이에요..."
-        tvDecisionStyle.text = "💭 결정 성향\nAI가 감정과 논리 비율을 계산 중이에요..."
-        tvRiskScore.text = "⚠️ 리스크 감수 성향\nAI가 리스크 점수를 계산 중이에요..."
+        tvDecisionType.text = "💞 결정 유형\nAI가 분석 중이에요..."
+        tvDecisionStyle.text = "🧠 결정 성향\nAI가 감정과 논리 비율을 계산 중이에요..."
+        tvRiskScore.text = "⚖️ 리스크 감수 성향\nAI가 리스크 점수를 계산 중이에요..."
         tvReasonScore.text = "📝 선택 근거 점수\nAI가 선택 근거 점수를 계산 중이에요..."
         tvRegretPrediction.text = "🔮 후회 가능성\nAI가 후회 가능성을 분석 중이에요..."
         tvStateSummary.text = "AI가 오늘의 상태를 요약하고 있어요."
@@ -212,11 +242,17 @@ class AiAnalysisActivity : AppCompatActivity() {
         val stateSummaryText = extractSection(result, "STATE_SUMMARY", "오늘은 감정과 현실적인 이유를 함께 고려한 상태로 보여요.")
         val weatherRelationText = extractSection(result, "WEATHER_RELATION", "날씨 정보와 감정 점수를 함께 보면 결정 당시의 컨디션을 더 입체적으로 볼 수 있어요.")
 
-        setAnalysisFromGpt(tvDecisionType, "📌 결정 유형", decisionTypeText)
-        setAnalysisFromGpt(tvDecisionStyle, "💭 결정 성향", decisionStyleText)
-        setAnalysisFromGpt(tvRiskScore, "⚠️ 리스크 감수 성향", riskScoreText)
+        setAnalysisFromGpt(tvDecisionType, "💞 결정 유형", decisionTypeText)
+        setAnalysisFromGpt(tvDecisionStyle, "🧠 결정 성향", decisionStyleText)
+        setAnalysisFromGpt(tvRiskScore, "⚖️ 리스크 감수 성향", riskScoreText)
         setAnalysisFromGpt(tvReasonScore, "📝 선택 근거 점수", reasonScoreText)
         setAnalysisFromGpt(tvRegretPrediction, "🔮 후회 가능성", regretPredictionText)
+        updateProfileFromGpt(
+            decisionTypeText,
+            decisionStyleText,
+            riskScoreText,
+            reasonScoreText
+        )
 
         tvStateSummary.text = stateSummaryText
         tvWeatherRelation.text = weatherRelationText
@@ -391,7 +427,8 @@ class AiAnalysisActivity : AppCompatActivity() {
         }
 
         btnTimeCapsule.setOnClickListener {
-            Toast.makeText(this, "타임캡슐 기능은 아직 준비 중입니다.", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, Activity3::class.java)
+            startActivity(intent)
         }
     }
 
@@ -516,19 +553,19 @@ PM2.5: $pm25
 
         setAnalysisFromGpt(
             tvDecisionType,
-            "📌 결정 유형",
+            "💞 결정 유형",
             "$decisionType\n입력한 카테고리와 선택 내용을 기준으로 $decisionType 결정에 가까워 보여요."
         )
 
         setAnalysisFromGpt(
             tvDecisionStyle,
-            "💭 결정 성향",
+            "🧠 결정 성향",
             "감정 기반 $emotionPercent% · 논리 기반 $logicPercent%\n현재 기본 분석에서는 사용자가 입력한 감정 점수를 기준으로 임시 계산했어요."
         )
 
         setAnalysisFromGpt(
             tvRiskScore,
-            "⚠️ 리스크 감수 성향",
+            "⚖️ 리스크 감수 성향",
             "50점 · 균형형\nAI 분석을 사용할 수 없어 기본값으로 표시했어요."
         )
 
@@ -545,17 +582,24 @@ PM2.5: $pm25
         )
 
         tvStateSummary.text = """
-오늘은 감정과 현실적인 이유를 함께 고려해 선택하려 한 상태로 보여요.
-선택 이유를 조금 더 구체적으로 남기면 나중에 이 결정을 돌아볼 때 더 도움이 될 수 있어요.
-        """.trimIndent()
+        오늘은 감정과 현실적인 이유를 함께 고려해 선택하려 한 상태로 보여요.
+        선택 이유를 조금 더 구체적으로 남기면 나중에 이 결정을 돌아볼 때 더 도움이 될 수 있어요.
+                """.trimIndent()
 
-        tvWeatherRelation.text = """
-결정 당시 날씨는 $weatherText 이에요.
-기온은 ${temperature}℃, 습도는 ${humidity}%였고, 체감 상태는 $discomfortText 에 가까웠어요.
+                tvWeatherRelation.text = """
+        결정 당시 날씨는 $weatherText 이에요.
+        기온은 ${temperature}℃, 습도는 ${humidity}%였고, 체감 상태는 $discomfortText 에 가까웠어요.
+        
+        PM10은 $pm10, PM2.5는 $pm25, 자외선 지수는 $uvIndex 였어요.
+        이런 날씨와 컨디션은 감정 점수와 함께 보면 결정 당시의 분위기를 이해하는 데 도움이 될 수 있어요.
+                """.trimIndent()
+        updateProfileFromGpt(
+            decisionType,
+            "감정 기반 $emotionPercent% · 논리 기반 $logicPercent%",
+            "50점 · 균형형",
+            "50점"
+        )
 
-PM10은 $pm10, PM2.5는 $pm25, 자외선 지수는 $uvIndex 였어요.
-이런 날씨와 컨디션은 감정 점수와 함께 보면 결정 당시의 분위기를 이해하는 데 도움이 될 수 있어요.
-        """.trimIndent()
 
         adviceText = createBasicAdvice()
     }
@@ -587,6 +631,63 @@ PM10은 $pm10, PM2.5는 $pm25, 자외선 지수는 $uvIndex 였어요.
             ?.getOrNull(1)
             ?.trim()
             ?: fallback
+    }
+
+    private fun updateProfileFromGpt(
+        decisionTypeText: String,
+        decisionStyleText: String,
+        riskScoreText: String,
+        reasonScoreText: String
+    ) {
+        val decisionType = decisionTypeText
+            .lines()
+            .firstOrNull()
+            ?.trim()
+            ?.ifBlank { normalizeCategory(category) }
+            ?: normalizeCategory(category)
+
+        val emotionPercent = extractPercent(decisionStyleText, "감정 기반")
+        val logicPercent = extractPercent(decisionStyleText, "논리 기반")
+        val riskScore = extractScore(riskScoreText)
+        val reasonScore = extractScore(reasonScoreText)
+
+        tvChipCategory.text = decisionType
+        tvChipStyle.text = when {
+            riskScore >= 70 -> "도전형"
+            riskScore >= 40 -> "균형형"
+            else -> "안정형"
+        }
+        tvChipWeather.text = "${weatherText} ${temperature.toInt()}°"
+
+        tvEmotionValue.text = "${emotionPercent}%"
+        tvLogicValue.text = "${logicPercent}%"
+        tvRiskValue.text = "${riskScore}점"
+        tvReasonValue.text = "${reasonScore}점"
+
+        progressEmotion.progress = emotionPercent
+        progressLogic.progress = logicPercent
+        progressRisk.progress = riskScore
+        progressReason.progress = reasonScore
+    }
+
+    private fun extractPercent(text: String, label: String): Int {
+        val regex = Regex("$label\\s*(\\d+)%")
+        return regex.find(text)
+            ?.groupValues
+            ?.getOrNull(1)
+            ?.toIntOrNull()
+            ?.coerceIn(0, 100)
+            ?: 0
+    }
+
+    private fun extractScore(text: String): Int {
+        val regex = Regex("(\\d+)점")
+        return regex.find(text)
+            ?.groupValues
+            ?.getOrNull(1)
+            ?.toIntOrNull()
+            ?.coerceIn(0, 100)
+            ?: 0
     }
 
     private fun normalizeCategory(category: String): String {
