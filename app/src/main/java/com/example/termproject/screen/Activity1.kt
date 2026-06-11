@@ -8,7 +8,6 @@ import android.widget.Button
 import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.termproject.R
@@ -24,6 +23,19 @@ import java.util.Locale
 import java.util.TimeZone
 import android.widget.EditText
 import com.example.termproject.data.weather.EnvironmentData
+import android.net.Uri
+import android.widget.ImageView
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import android.view.View
+import android.widget.LinearLayout
+import androidx.core.content.FileProvider
+import com.google.android.material.button.MaterialButton
+import java.io.File
+import java.io.FileOutputStream
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import com.example.termproject.data.location.LocationRepository
 
 class Activity1 : BaseActivity() {
     private lateinit var categoryButtons: List<Button>
@@ -31,6 +43,14 @@ class Activity1 : BaseActivity() {
     private val weatherRepository = WeatherRepository()
     private val LOCATION_PERMISSION_REQUEST_CODE = 100
     private val db = FirebaseFirestore.getInstance()
+
+    private lateinit var selectedImageView: ImageView
+    private lateinit var imagePlaceholderLayout: LinearLayout
+
+    private var selectedImageUri: Uri? = null
+    private var cameraImageUri: Uri? = null
+
+    private val locationRepository = LocationRepository()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,6 +66,97 @@ class Activity1 : BaseActivity() {
         setupEmotion()
         setupCategories()
         setupGoAnalysisButton()
+        setupImagePicker()
+    }
+
+    private fun showSelectedImage(uri: Uri) {
+        selectedImageView.setImageURI(uri)
+        selectedImageView.visibility = View.VISIBLE
+        imagePlaceholderLayout.visibility = View.GONE
+    }
+
+    private val galleryLauncher =
+        registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+            if (uri != null) {
+                selectedImageUri = uri
+                showSelectedImage(uri)
+            }
+        }
+
+    private val cameraLauncher =
+        registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+            if (success) {
+                cameraImageUri?.let { uri ->
+                    selectedImageUri = uri
+                    showSelectedImage(uri)
+                }
+            }
+        }
+
+    private fun createCameraImageUri(): Uri {
+        val imageDir = File(cacheDir, "camera_images")
+
+        if (!imageDir.exists()) {
+            imageDir.mkdirs()
+        }
+
+        val imageFile = File(
+            imageDir,
+            "camera_${System.currentTimeMillis()}.jpg"
+        )
+
+        return FileProvider.getUriForFile(
+            this,
+            "com.example.termproject.fileprovider",
+            imageFile
+        )
+    }
+
+    private fun saveImageToInternalStorage(uri: Uri): String? {
+        return try {
+            val imageDir = File(filesDir, "record_images")
+
+            if (!imageDir.exists()) {
+                imageDir.mkdirs()
+            }
+
+            val imageFile = File(
+                imageDir,
+                "record_${System.currentTimeMillis()}.jpg"
+            )
+
+            contentResolver.openInputStream(uri)?.use { input ->
+                FileOutputStream(imageFile).use { output ->
+                    input.copyTo(output)
+                }
+            } ?: return null
+
+            imageFile.absolutePath
+
+        } catch (e: Exception) {
+            android.util.Log.e("IMAGE_SAVE", "이미지 저장 실패", e)
+            null
+        }
+    }
+
+    private fun setupImagePicker() {
+        selectedImageView = findViewById(R.id.selectedImageView)
+        imagePlaceholderLayout = findViewById(R.id.imagePlaceholderLayout)
+
+        val cameraButton = findViewById<MaterialButton>(R.id.cameraButton)
+        val galleryButton = findViewById<MaterialButton>(R.id.galleryButton)
+
+        cameraButton.setOnClickListener {
+            val uri = createCameraImageUri()
+            cameraImageUri = uri
+            cameraLauncher.launch(uri)
+        }
+
+        galleryButton.setOnClickListener {
+            galleryLauncher.launch(
+                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+            )
+        }
     }
 
     private fun getSelectedCategory(): String {
@@ -58,47 +169,6 @@ class Activity1 : BaseActivity() {
         return seekBar.progress + 1
     }
 
-//    private fun setupGoAnalysisButton() {
-//        val btnGoAnalysis =
-//            findViewById<Button>(R.id.btnGoAnalysis)
-//        btnGoAnalysis.setOnClickListener {
-//            val intent =
-//                Intent(this, AiAnalysisActivity::class.java).apply {
-//                    putExtra("title", "오늘의 결정")
-//                    putExtra(
-//                        "category",
-//                        getSelectedCategory()
-//                    )
-//
-//                    putExtra(
-//                        "selectedOption",
-//                        "친구에게 먼저 연락했다"
-//                    )
-//
-//                    putExtra(
-//                        "reason",
-//                        "계속 어색한 상태로 두기 싫어서 먼저 연락했다"
-//                    )
-//
-//                    putExtra(
-//                        "expectedResult",
-//                        "관계가 조금이라도 회복됐으면 좋겠다"
-//                    )
-//
-//                    putExtra(
-//                        "emotionScore",
-//                        getEmotionScore()
-//                    )
-//
-//                    putExtra(
-//                        "createdTime",
-//                        System.currentTimeMillis()
-//                    )
-//                }
-//
-//            startActivity(intent)
-//        }
-//    }
     private fun setupGoAnalysisButton() {
         val btnGoAnalysis = findViewById<Button>(R.id.btnGoAnalysis)
 
@@ -106,56 +176,6 @@ class Activity1 : BaseActivity() {
             requestEnvironmentAndMoveToAnalysis()
         }
     }
-//    // Activity 1에서 입력한 값을 Activity2 로 넘기기
-//    private fun moveToAnalysis() {
-//        val title = findViewById<EditText>(R.id.titleEdit)
-//            .text.toString().trim()
-//
-//        val choiceOptions = findViewById<EditText>(R.id.choiceEdit)
-//            .text.toString().trim()
-//
-//        val selectedOption = findViewById<EditText>(R.id.finalChoiceEdit)
-//            .text.toString().trim()
-//
-//        val reason = findViewById<EditText>(R.id.reasonEdit)
-//            .text.toString().trim()
-//
-//        if (title.isBlank()) {
-//            Toast.makeText(this, "제목을 입력해주세요.", Toast.LENGTH_SHORT).show()
-//            return
-//        }
-//
-//        if (choiceOptions.isBlank()) {
-//            Toast.makeText(this, "고민한 선택지를 입력해주세요.", Toast.LENGTH_SHORT).show()
-//            return
-//        }
-//
-//        if (selectedOption.isBlank()) {
-//            Toast.makeText(this, "결국 선택한 내용을 입력해주세요.", Toast.LENGTH_SHORT).show()
-//            return
-//        }
-//
-//        if (reason.isBlank()) {
-//            Toast.makeText(this, "선택 이유를 입력해주세요.", Toast.LENGTH_SHORT).show()
-//            return
-//        }
-//
-//        val intent = Intent(this, AiAnalysisActivity::class.java).apply {
-//            putExtra("title", title)
-//            putExtra("category", getSelectedCategory())
-//            putExtra("choiceOptions", choiceOptions)
-//            putExtra("selectedOption", selectedOption)
-//            putExtra("reason", reason)
-//
-//            // Activity1에는 기대 결과 입력칸이 아직 없으므로 일단 빈 값으로 전달
-//            putExtra("expectedResult", "")
-//
-//            putExtra("emotionScore", getEmotionScore())
-//            putExtra("createdTime", System.currentTimeMillis())
-//        }
-//
-//        startActivity(intent)
-//    }
 
     private fun setupDate() {
         val dateText =
@@ -528,6 +548,19 @@ class Activity1 : BaseActivity() {
                     )
                 }
 
+                val address = locationRepository.getAddressFromLatLng(
+                    latitude = location.latitude,
+                    longitude = location.longitude
+                )
+
+                val shortAddress = getShortAddress(address)
+
+                val imagePath = selectedImageUri?.let { uri ->
+                    withContext(Dispatchers.IO) {
+                        saveImageToInternalStorage(uri)
+                    }
+                }
+
                 val record = hashMapOf<String, Any>(
                     "title" to title,
                     "choiceOptions" to choiceOptions,
@@ -538,10 +571,19 @@ class Activity1 : BaseActivity() {
                     "emotionScore" to getEmotionScore(),
                     "createdAt" to Timestamp.now(),
 
+                    "latitude" to location.latitude,
+                    "longitude" to location.longitude,
+                    "address" to address,
+                    "locationText" to shortAddress,
+
                     "reviewCompleted" to false
                 )
 
                 record.putAll(environmentFields)
+
+                imagePath?.let {
+                    record["imagePath"] = it
+                }
 
                 android.util.Log.d("FIRESTORE_SAVE", "Firestore 저장 시작: $record")
 
@@ -567,6 +609,37 @@ class Activity1 : BaseActivity() {
                     }
             }
         }
+    }
+
+    private fun getShortAddress(fullAddress: String): String {
+        if (fullAddress == "주소 알 수 없음") {
+            return fullAddress
+        }
+
+        val parts = fullAddress
+            .replace("대한민국", "")
+            .trim()
+            .split(" ")
+            .filter { it.isNotBlank() }
+
+        val city = parts.firstOrNull {
+            it.endsWith("특별시") ||
+                    it.endsWith("광역시") ||
+                    it.endsWith("도")
+        }
+
+        val district = parts
+            .filter { it != city }
+            .firstOrNull {
+                it.endsWith("구") ||
+                        it.endsWith("군") ||
+                        it.endsWith("시")
+            }
+
+        return listOfNotNull(city, district)
+            .distinct()
+            .joinToString(" ")
+            .ifBlank { fullAddress }
     }
 
     override fun onRequestPermissionsResult(
