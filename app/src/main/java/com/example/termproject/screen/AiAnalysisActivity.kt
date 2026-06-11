@@ -1,5 +1,7 @@
 package com.example.termproject.screen
 
+import com.example.termproject.ml.DecisionFeatureExtractor
+import com.example.termproject.ml.DecisionMlPredictor
 import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
@@ -26,7 +28,7 @@ import android.widget.ProgressBar
 
 class AiAnalysisActivity : AppCompatActivity() {
 
-    private val useGptApi = true
+    private val useGptApi = false
 
     private var title: String = ""
     private var category: String = ""
@@ -75,7 +77,7 @@ class AiAnalysisActivity : AppCompatActivity() {
     private lateinit var btnShowAdvice: Button
     private lateinit var btnNewDecision: Button
     private lateinit var btnTimeCapsule: Button
-
+    private lateinit var tvLocalMlPrediction: TextView
 
 
     private var adviceText: String = ""
@@ -87,6 +89,7 @@ class AiAnalysisActivity : AppCompatActivity() {
         initViews()
         receiveIntentData()
         showLoadingFallback()
+        runLocalMlPrediction()
 
         if (useGptApi) {
             requestGptFullAnalysis()
@@ -123,6 +126,8 @@ class AiAnalysisActivity : AppCompatActivity() {
         progressLogic = findViewById(R.id.progressLogic)
         progressRisk = findViewById(R.id.progressRisk)
         progressReason = findViewById(R.id.progressReason)
+
+        tvLocalMlPrediction = findViewById(R.id.tvLocalMlPrediction)
     }
 
     private fun receiveIntentData() {
@@ -171,6 +176,68 @@ class AiAnalysisActivity : AppCompatActivity() {
         tvStateSummary.text = "AI가 오늘의 상태를 요약하고 있어요."
         tvWeatherRelation.text = "AI가 날씨와 감정의 관계를 분석하고 있어요."
         tvAdvice.text = "오늘의 조언은 버튼을 누르면 표시됩니다."
+    }
+    private fun runLocalMlPrediction() {
+        try {
+            val features = DecisionFeatureExtractor.extract(
+                category = category,
+                choiceOptions = choiceOptions,
+                reason = reason,
+                emotionScore = emotionScore,
+                temperature = temperature,
+                humidity = humidity,
+                discomfortIndex = discomfortIndex,
+                createdTime = createdTime
+            )
+
+            val result = DecisionMlPredictor(this).predict(features)
+            val rawConfidencePercent = (result.confidence * 100).toInt()
+            val confidencePercent = rawConfidencePercent.coerceIn(55, 88)
+
+            val mlText = """
+            🤖 로컬 머신러닝 예측
+            후회 가능성: ${result.regretLabel}
+            예측 점수: ${confidencePercent}%
+            
+            감정 점수, 카테고리, 선택 이유 길이, 선택지 개수, 날씨 정보를 바탕으로 예측했어요.
+        """.trimIndent()
+
+            val spannable = SpannableString(mlText)
+
+            val firstLineEnd = mlText.indexOf("\n")
+            if (firstLineEnd > 0) {
+                spannable.setSpan(
+                    StyleSpan(Typeface.BOLD),
+                    0,
+                    firstLineEnd,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
+
+            tvLocalMlPrediction.text = spannable
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+
+            val errorText = """
+            🤖 로컬 머신러닝 예측
+            모델 예측을 불러오지 못해 기본 분석만 표시합니다.
+        """.trimIndent()
+
+            val spannable = SpannableString(errorText)
+
+            val firstLineEnd = errorText.indexOf("\n")
+            if (firstLineEnd > 0) {
+                spannable.setSpan(
+                    StyleSpan(Typeface.BOLD),
+                    0,
+                    firstLineEnd,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
+
+            tvLocalMlPrediction.text = spannable
+        }
     }
 
     private fun requestGptFullAnalysis() {
