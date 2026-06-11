@@ -352,6 +352,21 @@
                 android:textSize="15sp"
                 android:lineSpacingExtra="6dp" />
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="12dp"
+                android:background="#EFE3D8" />
+
+            <TextView
+                android:id="@+id/tvLocalMlPrediction"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🤖 로컬 머신러닝 예측\n모델이 후회 가능성을 계산하고 있어요."
+                android:textColor="#2B1712"
+                android:textSize="15sp"
+                android:lineSpacingExtra="6dp" />
+
         </LinearLayout>
 
         <!-- 날씨 -->
