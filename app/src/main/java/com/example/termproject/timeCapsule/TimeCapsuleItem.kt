@@ -9,6 +9,8 @@ data class TimeCapsuleItem(
 
     val category: String = "",
     val dateText: String = "",
+    val imagePath: String? = null,
+    val locationText: String = "",
     val discomfort: String = "",
     val emotionScore: Int = 0,
     val humidity: Int = 0,

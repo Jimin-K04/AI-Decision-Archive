@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/bottomNav"
     android:layout_width="match_parent"
     android:layout_height="72dp"
@@ -18,7 +19,7 @@
         android:gravity="center"
         android:orientation="horizontal">
 
-        <!-- 기록 -->
+        <!-- 홈 -->
         <LinearLayout
             android:id="@+id/navRecord"
             android:layout_width="0dp"
@@ -29,21 +30,23 @@
             android:gravity="center"
             android:orientation="vertical">
 
-            <TextView
+            <ImageView
                 android:id="@+id/navRecordIcon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="✎"
-                android:textColor="#7E6A5D"
-                android:textSize="22sp" />
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:src="@drawable/baseline_home_24"
+                app:tint="#7E6A5D"
+                android:contentDescription="홈" />
 
             <TextView
                 android:id="@+id/navRecordText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="기록"
+                android:layout_marginTop="3dp"
+                android:text="홈"
                 android:textColor="#7E6A5D"
-                android:textSize="11sp" />
+                android:textSize="12sp" />
+
         </LinearLayout>
 
         <!-- 타임캡슐 -->
@@ -57,21 +60,23 @@
             android:gravity="center"
             android:orientation="vertical">
 
-            <TextView
+            <ImageView
                 android:id="@+id/navTimeCapsuleIcon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="◷"
-                android:textColor="#7E6A5D"
-                android:textSize="22sp" />
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:src="@drawable/baseline_schedule_24"
+                app:tint="#7E6A5D"
+                android:contentDescription="타임캡슐" />
 
             <TextView
                 android:id="@+id/navTimeCapsuleText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
                 android:text="타임캡슐"
                 android:textColor="#7E6A5D"
-                android:textSize="11sp" />
+                android:textSize="12sp" />
+
         </LinearLayout>
 
         <!-- 리포트 -->
@@ -85,21 +90,23 @@
             android:gravity="center"
             android:orientation="vertical">
 
-            <TextView
+            <ImageView
                 android:id="@+id/navReportIcon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="▥"
-                android:textColor="#7E6A5D"
-                android:textSize="22sp" />
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:src="@drawable/insert_chart"
+                app:tint="#7E6A5D"
+                android:contentDescription="리포트" />
 
             <TextView
                 android:id="@+id/navReportText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
                 android:text="리포트"
                 android:textColor="#7E6A5D"
-                android:textSize="11sp" />
+                android:textSize="12sp" />
+
         </LinearLayout>
 
     </LinearLayout>

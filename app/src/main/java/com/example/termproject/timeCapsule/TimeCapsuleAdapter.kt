@@ -10,6 +10,9 @@ import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import android.net.Uri
+import android.widget.ImageView
+import java.io.File
 import com.example.termproject.R
 
 class TimeCapsuleAdapter(
@@ -47,7 +50,7 @@ class TimeCapsuleAdapter(
 
     inner class TimeCapsuleViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val rootCard: LinearLayout = itemView.findViewById(R.id.rootCard)
-        private val iconBox: TextView = itemView.findViewById(R.id.iconBox)
+        private val iconBox: View = itemView.findViewById(R.id.iconBox)
 
         private val tvCategory: TextView = itemView.findViewById(R.id.tvCategory)
         private val tvDate: TextView = itemView.findViewById(R.id.tvDate)
@@ -81,6 +84,9 @@ class TimeCapsuleAdapter(
         private val btnSaveReview: TextView = itemView.findViewById(R.id.btnSaveReview)
         private val btnAiAnalyze: TextView = itemView.findViewById(R.id.btnAiAnalyze)
 
+        private val itemImageView: ImageView = itemView.findViewById(R.id.itemImageView)
+        private val defaultFlowerText: TextView = itemView.findViewById(R.id.defaultFlowerText)
+
         fun bind(item: TimeCapsuleItem) {
             applyBaseStyles()
 
@@ -107,6 +113,15 @@ class TimeCapsuleAdapter(
             val reasonText = buildString {
                 if (item.reason.isNotBlank()) {
                     append("당시 이유: ${item.reason}")
+                }
+
+                if (
+                    item.locationText.isNotBlank() &&
+                    item.locationText != "위치 정보 없음" &&
+                    item.locationText != "주소 알 수 없음"
+                ) {
+                    if (isNotEmpty()) append("\n")
+                    append("당시 위치: ${item.locationText}")
                 }
 
                 if (
@@ -140,6 +155,16 @@ class TimeCapsuleAdapter(
                 tvReviewStatus.text = "🔔 회고하기"
                 tvReviewStatus.setTextColor(Color.parseColor("#E05A3C"))
                 tvReviewStatus.background = roundedBg("#FFE5DF", 7)
+            }
+
+            if (!item.imagePath.isNullOrBlank() && File(item.imagePath).exists()) {
+                itemImageView.setImageURI(Uri.fromFile(File(item.imagePath)))
+                itemImageView.visibility = View.VISIBLE
+                defaultFlowerText.visibility = View.GONE
+            } else {
+                itemImageView.setImageDrawable(null)
+                itemImageView.visibility = View.GONE
+                defaultFlowerText.visibility = View.VISIBLE
             }
 
             val isExpanded = expandedId == item.id

@@ -82,6 +82,8 @@ class Activity3 : BaseActivity() {
 
                         category = doc.getString("category") ?: "",
                         dateText = dateText,
+                        imagePath = doc.getString("imagePath"),
+                        locationText = doc.getString("locationText") ?: "위치 정보 없음",
                         discomfort = doc.getString("discomfort") ?: "",
                         emotionScore = doc.getLong("emotionScore")?.toInt() ?: 0,
                         humidity = doc.getLong("humidity")?.toInt() ?: 0,

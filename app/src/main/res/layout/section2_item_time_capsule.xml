@@ -17,13 +17,27 @@
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
-        <TextView
+        <FrameLayout
             android:id="@+id/iconBox"
-            android:layout_width="58dp"
-            android:layout_height="58dp"
-            android:gravity="center"
-            android:text="🌼"
-            android:textSize="24sp" />
+            android:layout_width="72dp"
+            android:layout_height="72dp">
+
+            <ImageView
+                android:id="@+id/itemImageView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/defaultFlowerText"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="🌼"
+                android:textSize="30sp" />
+
+        </FrameLayout>
 
         <LinearLayout
             android:layout_width="0dp"
